@@ -4,8 +4,18 @@ using ThreeSeven.Model;
 
 public class CellBoardInitializer : MonoBehaviour {
 
-	void Start ()
+    void Start()
     {
         MaskedCellBoard maskedCellboard = new MaskedCellBoard(new Size<int> { Width = 7, Height = 16 });
+
+        Tetromino tetromino = new Tetromino(Polyomino.Create(PolyominoIndex.I));
+
+        Debug.Log(tetromino);
+
+        tetromino.Position = new Point<int>() { X = 1, Y = 2 };
+
+        Debug.Log(tetromino);
+
     }
 }
+

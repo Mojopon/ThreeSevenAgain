@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace ThreeSeven.Model
 {
     public enum ThreeSevenBlock
     {
-        Zero,
+        NoBlock,
         One,
         Two,
         Three,
@@ -14,8 +15,17 @@ namespace ThreeSeven.Model
         Seven,
     }
 
-    public class Block
+    public interface IBlock
     {
+        ThreeSevenBlock BlockType { get; }
+
+        int GetNumber();
+    }
+
+    public class Block : IBlock
+    {
+        static Random random = new Random();
+
         public ThreeSevenBlock BlockType { get; private set; }
         
         public Block(ThreeSevenBlock blockType)
@@ -23,7 +33,7 @@ namespace ThreeSeven.Model
             BlockType = blockType;
         }
 
-        private int GetNumber()
+        public int GetNumber()
         {
             if(BlockType > 0 && 7 >= (int)BlockType)
             {
@@ -32,5 +42,17 @@ namespace ThreeSeven.Model
 
             return 0;
         }
+
+        public static Block Create()
+        {
+            return new Block((ThreeSevenBlock)random.Next(1, 7 + 1));
+        }
+    }
+
+    public class NoBlock : IBlock
+    {
+        public ThreeSevenBlock BlockType { get { return ThreeSevenBlock.NoBlock; } }
+
+        public int GetNumber() { return 0; }
     }
 }

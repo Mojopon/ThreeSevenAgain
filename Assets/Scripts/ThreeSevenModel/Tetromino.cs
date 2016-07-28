@@ -1,54 +1,64 @@
-﻿using System;
-using System.Linq;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ThreeSeven.Model
 {
+    public struct TetrominoBlocks
+    {
+        public IBlock[] Blocks;
+        public Point<int>[] Positions;
+    }
+
     public class Tetromino
     {
-        public enum PolyominoIndex
-        {
-            None, I, N, Z, O, J, T, L
-        }
 
-        private Dictionary<PolyominoIndex, bool[,]> _table = null;
-        private Dictionary<PolyominoIndex, bool[,]> Table
+        // Position of the Tetromino
+        public Point<int> Position { get; set; }
+        public TetrominoBlocks Blocks
         {
             get
             {
-                if(_table == null)
-                {
-                    InitializeTable();
-                }
-                return _table;
+                return new TetrominoBlocks() { Blocks = _blocks.ToArray(), Positions = GetRelativePositionsFromPosition().ToArray() };
+            }
+        }
+        public int Length { get { return _polyomino.Length; } }
+
+
+        private List<Block> _blocks = new List<Block>();
+        private Polyomino _polyomino;
+
+        public Tetromino(Polyomino polyomino)
+        {
+            _polyomino = polyomino;
+
+            for (int i = 0; i < _polyomino.Length; i++) _blocks.Add(Block.Create());
+        }
+
+        public void Turn(bool clockowise)
+        {
+            _polyomino.Turn(clockowise);
+        }
+
+        private IEnumerable<Point<int>> GetRelativePositionsFromPosition()
+        {
+            foreach(var point in _polyomino.Points)
+            {
+                yield return point.Add(Position);
             }
         }
 
-        void InitializeTable()
+        public override string ToString()
         {
-            _table = new Dictionary<PolyominoIndex, bool[,]>
+            StringBuilder builder = new StringBuilder();
+            foreach (var point in GetRelativePositionsFromPosition().ToArray())
             {
-                { PolyominoIndex.I, new bool[,] 
-                {{ false, false, false, false },
-                 { true , true , true , true  },
-                 { false, false, false, false },
-                 { false, false, false, false }}
-                },
-                { PolyominoIndex.N, new bool[,]
-                {{ false, false, true , false },
-                 { false, true , true , false },
-                 { false, true , false, false },
-                 { false, false, false, false }}
-                },
-                { PolyominoIndex.Z, new bool[,]
-                {{ false, true , false, false },
-                 { false, true , true , false },
-                 { false, false, true , false },
-                 { false, false, false, false }}
-                },
-            };
-        }
+                builder.Append(string.Format("({0}, {1}) ", point.X, point.Y));
+            }
 
+            return builder.ToString();
+        }
     }
 }

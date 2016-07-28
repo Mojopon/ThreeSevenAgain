@@ -56,5 +56,10 @@ namespace ThreeSeven.Model
         {
             TopMask = topMask;
         }
+
+        public override string ToString()
+        {
+            return base.ToString();
+        }
     }
 }
