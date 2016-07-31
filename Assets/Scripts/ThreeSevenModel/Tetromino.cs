@@ -3,38 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System;
 
 namespace ThreeSeven.Model
 {
-    public struct TetrominoBlocks
-    {
-        public IBlock[] Blocks;
-        public Point<int>[] Positions;
-    }
 
     public class Tetromino
     {
-
         // Position of the Tetromino
-        public Point<int> Position { get; set; }
-        public TetrominoBlocks Blocks
-        {
-            get
-            {
-                return new TetrominoBlocks() { Blocks = _blocks.ToArray(), Positions = GetRelativePositionsFromPosition().ToArray() };
-            }
-        }
-        public int Length { get { return _polyomino.Length; } }
+        public Point<int>   Position  { get; set; }
 
+        public IBlock[]     Blocks    { get { return _blocks.ToArray(); } }
+        public Point<int>[] Positions { get { return GetRelativePositionsFromPosition().ToArray(); } }
+
+        public int          Length    { get { return _polyomino.Length; } }
 
         private List<Block> _blocks = new List<Block>();
         private Polyomino _polyomino;
 
-        public Tetromino(Polyomino polyomino)
+        public Tetromino(Polyomino polyomino, Func<Block> blockFactory)
         {
             _polyomino = polyomino;
 
-            for (int i = 0; i < _polyomino.Length; i++) _blocks.Add(Block.Create());
+            for (int i = 0; i < _polyomino.Length; i++) _blocks.Add(blockFactory());
         }
 
         public void Turn(bool clockowise)
@@ -59,6 +50,27 @@ namespace ThreeSeven.Model
             }
 
             return builder.ToString();
+        }
+    }
+
+    public static class TetrominoExtention
+    {
+        public static void Foreach(this Tetromino @this, Action<Point<int>, IBlock> action)
+        {
+            for(int i = 0; i < @this.Length; i++)
+            {
+                action(@this.Positions[i], @this.Blocks[i]);
+            }
+        }
+
+        public static void Foreach(this Tetromino @this, Action<int, Point<int>, IBlock> action)
+        {
+            var index = 0;
+            for (int i = 0; i < @this.Length; i++)
+            {
+                action(index, @this.Positions[i], @this.Blocks[i]);
+                index++;
+            }
         }
     }
 }

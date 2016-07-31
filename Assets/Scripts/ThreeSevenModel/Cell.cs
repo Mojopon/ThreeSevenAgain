@@ -22,5 +22,10 @@ namespace ThreeSeven.Model
                 _block = (Block)value;
             }
         }
+
+        public void Clear()
+        {
+            Block = null;
+        }
     }
 }

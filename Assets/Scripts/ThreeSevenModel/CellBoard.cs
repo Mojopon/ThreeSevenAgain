@@ -31,6 +31,11 @@ namespace ThreeSeven.Model
             Cells = new Cell[Size.Width, Size.Height];
             Cells.ForEach((point, cell) => Cells.Set(point, new Cell()));
         }
+
+        public virtual void Clear()
+        {
+            Cells.ForEach((point, cell) => cell.Clear());
+        }
     }
 
     public class MaskedCellBoard : CellBoard

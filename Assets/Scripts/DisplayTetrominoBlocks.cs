@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class DisplayTetrominoBlocks : MonoBehaviour
 {
     [SerializeField]
-    private NumberBlock _NumberBlock;
+    private NumberBlock _NumberBlockPrefab;
 
     private List<NumberBlock> _spawnedBlocks = new List<NumberBlock>();
 
@@ -14,12 +14,9 @@ public class DisplayTetrominoBlocks : MonoBehaviour
 
     private void Start()
     {
-        _tetromino = new Tetromino(Polyomino.Create( PolyominoIndex.N));
+        _tetromino = new Tetromino(Polyomino.Create(PolyominoIndex.N), () => Block.Create());
 
-        for(int i = 0; i < _tetromino.Length; i++)
-        {
-            _spawnedBlocks.Add(Instantiate(_NumberBlock));
-        }
+        _tetromino.Foreach((point, block) => _spawnedBlocks.Add(Instantiate(_NumberBlockPrefab)));
 
         PlaceBlocks();
     }
@@ -34,13 +31,12 @@ public class DisplayTetrominoBlocks : MonoBehaviour
 
     private void PlaceBlocks()
     {
-        var tetrominoBlocks = _tetromino.Blocks;
-        for(int i = 0; i < _spawnedBlocks.Count; i++)
+        _tetromino.Foreach((index, point, block) =>
         {
-            var block = _spawnedBlocks[i];
-            block.transform.position = tetrominoBlocks.Positions[i].ToVector3().InvertYAxis();
-            block.SetNumber(tetrominoBlocks.Blocks[i].GetNumber());
-        }
+            var blockObject = _spawnedBlocks[index++];
+            blockObject.SetNumber(block.GetNumber());
+            blockObject.transform.position = point.ToVector3().InvertYAxis();
+        });
     }
 
     private void Turn()
