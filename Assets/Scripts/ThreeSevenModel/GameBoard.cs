@@ -26,14 +26,35 @@ public class GameBoard : MaskedCellBoard
         Clear();
         NextTetromino = new Tetromino(Polyomino.Create(PolyominoIndex.I), () => Block.Create());
 
+        currentTetromino = NextTetromino;
     }
 
-    private void PlaceTetromino()
+    private bool CanPlaceCurrentTetromino()
     {
-        for(int i = 0; i < NextTetromino.Length; i++)
+        var success = true;
+        currentTetromino.Foreach((point, block) =>
         {
+            success = Cells[point.X, point.Y].Block. ? success : false;
+        });
 
-        }
+        return success;
+    }
+
+    private bool PlaceTetromino()
+    {
+        var cells = CellsClone;
+        var canPlace = true;
+
+        currentTetromino.Foreach((point, block) =>
+        {
+            if(cells[point.X, point.Y] == null)
+            {
+
+            }
+        });
+
+
+        return true;
     }
 
     public override void Clear()
