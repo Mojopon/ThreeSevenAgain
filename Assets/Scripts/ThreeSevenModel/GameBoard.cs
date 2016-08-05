@@ -26,7 +26,15 @@ public class GameBoard : MaskedCellBoard
         get
         {
             var cells = base.ActualCells;
-            currentTetromino.Foreach((point, block) =>  cells[point.X, point.Y].Set(block));
+            currentTetromino.Foreach((point, block) => 
+            {
+                var actualPoint = new Point<int> { X = point.X, Y = point.Y - TopMask };
+
+                if (!IsOutOfRange(actualPoint))
+                {
+                    cells[actualPoint.X, actualPoint.Y].Set(block);
+                }
+            });
             return cells;
         }
     }
@@ -46,12 +54,68 @@ public class GameBoard : MaskedCellBoard
         currentTetromino = NextTetromino;
     }
 
+    public bool MoveLeft()
+    {
+        return MoveCurrentTetrominoTo(new Point<int> { X = currentTetromino.Position.X - 1, Y = currentTetromino.Position.Y });
+    }
+
+    public bool MoveRight()
+    {
+        return MoveCurrentTetrominoTo(new Point<int> { X = currentTetromino.Position.X + 1, Y = currentTetromino.Position.Y });
+    }
+
+    public bool MoveDown()
+    {
+        return MoveCurrentTetrominoTo(new Point<int> { X = currentTetromino.Position.X, Y = currentTetromino.Position.Y + 1 });
+    }
+
+    private bool MoveCurrentTetrominoTo(Point<int> newPosition)
+    {
+        if (CanMoveCurrentTetrominoTo(newPosition))
+        {
+            currentTetromino.Position = newPosition;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool CanMoveCurrentTetrominoTo(Point<int> newPosition)
+    {
+        var oldPosition = currentTetromino.Position;
+        bool canMove = false;
+
+        currentTetromino.Position = newPosition;
+        if(CanPlaceCurrentTetromino())
+        {
+            canMove = true;
+        }
+
+        currentTetromino.Position = oldPosition;
+        return canMove;
+    }
+
     private bool CanPlaceCurrentTetromino()
     {
         var success = true;
-        currentTetromino.Foreach((point, block) => success = Cells[point.X, point.Y].IsNull ? success : false);
+        currentTetromino.Foreach((point, block) => 
+        {
+            if (IsOutOfRange(point))
+            {
+                success = false;
+            }
+            else
+            {
+                success = Cells[point.X, point.Y].IsNull ? success : false;
+            }
+        });
 
         return success;
+    }
+
+    private bool IsOutOfRange(Point<int> point)
+    {
+        return 0 > point.X || 0 > point.Y || point.X >= Size.Width || point.Y >= Size.Height;
     }
 
     private bool PlaceTetromino()
