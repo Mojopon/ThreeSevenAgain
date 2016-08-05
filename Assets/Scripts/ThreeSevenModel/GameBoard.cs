@@ -1,9 +1,13 @@
 ﻿using System.Collections;
 using ThreeSeven.Model;
 using System;
+using UniRx;
 
-public class GameBoard : MaskedCellBoard
+public class GameBoard : MaskedCellBoard, IGameBoardObservable
 {
+    public IObservable<Cell[,]> GameBoardCellsObservable { get { return _gameBoardCellsStream.AsObservable(); } }
+    private ISubject<Cell[,]> _gameBoardCellsStream = new BehaviorSubject<Cell[,]>(null);
+
     private Random random = new Random();
 
     private Tetromino currentTetromino;
@@ -42,6 +46,8 @@ public class GameBoard : MaskedCellBoard
 
     public GameBoard(Size<int> size) : base(size)
     {
+        _gameBoardCellsStream.OnNext(ActualCells);
+
         Start();
     }
 
@@ -74,10 +80,16 @@ public class GameBoard : MaskedCellBoard
         if (CanMoveCurrentTetrominoTo(newPosition))
         {
             currentTetromino.Position = newPosition;
+            UpdateGameBoard();
             return true;
         }
 
         return false;
+    }
+
+    private void UpdateGameBoard()
+    {
+        _gameBoardCellsStream.OnNext(ActualCells);
     }
 
     private bool CanMoveCurrentTetrominoTo(Point<int> newPosition)
