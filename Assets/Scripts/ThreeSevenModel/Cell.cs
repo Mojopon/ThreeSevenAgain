@@ -2,7 +2,7 @@
 
 namespace ThreeSeven.Model
 {
-    public class Cell
+    public struct Cell
     {
         private Block _block;
 

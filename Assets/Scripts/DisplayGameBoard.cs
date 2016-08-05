@@ -21,4 +21,31 @@ public class DisplayGameBoard : MonoBehaviour
             _gameboardObjects[point.X, point.Y].SetNumber(cell.Block.GetNumber());
         });
     }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            _gameboard.MoveLeft();
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            _gameboard.MoveRight();
+        }
+        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            _gameboard.MoveDown();
+        }
+
+
+        UpdateGameBoardObjects();
+    }
+
+    void UpdateGameBoardObjects()
+    {
+        _gameboard.ActualCells.ForEach((point, cell) =>
+        {
+            _gameboardObjects[point.X, point.Y].SetNumber(cell.Block.GetNumber());
+        });
+    }
 }
