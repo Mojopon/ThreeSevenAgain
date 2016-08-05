@@ -14,7 +14,7 @@ public class DisplayTetrominoBlocks : MonoBehaviour
 
     private void Start()
     {
-        _tetromino = new Tetromino(Polyomino.Create(PolyominoIndex.N), () => Block.Create());
+        _tetromino = new Tetromino(Polyomino.Create(), () => Block.Create());
 
         _tetromino.Foreach((point, block) => _spawnedBlocks.Add(Instantiate(_NumberBlockPrefab)));
 

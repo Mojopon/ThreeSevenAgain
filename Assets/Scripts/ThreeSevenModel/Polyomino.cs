@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -22,15 +23,40 @@ namespace ThreeSeven.Model
             return new Polyomino(Table[polyminoIndex]);
         }
 
+        public Size<int> Size { get { return _size; } }
         public Point<int>[] Points { get { return _patterns[_currentPattern]; } }
         public int Length { get { return Points.Length; } }
 
         private int _currentPattern = 0;
         private List<Point<int>[]> _patterns = null;
+        private Size<int> _size;
 
         private Polyomino(List<Point<int>[]> patterns)
         {
             _patterns = patterns;
+            _size = GetSizeFromPatterns();
+        }
+
+        private Size<int> GetSizeFromPatterns()
+        {
+            var size = new Size<int> { Width = -1, Height = -1 };
+
+            foreach(var points in _patterns)
+            {
+                foreach(var point in points)
+                {
+                    size.Width  = point.X > size.Width  ? point.X : size.Width;
+                    size.Height = point.Y > size.Height ? point.Y : size.Height;
+                }
+            }
+
+            if(size.Width != -1 || size.Height != -1)
+            {
+                size.Width++;
+                size.Height++;
+            }
+
+            return size;
         }
 
         public void Turn()

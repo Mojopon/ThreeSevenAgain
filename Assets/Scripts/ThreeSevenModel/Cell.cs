@@ -17,15 +17,14 @@ namespace ThreeSeven.Model
 
                 return _block;
             }
-            set
-            {
-                _block = (Block)value;
-            }
         }
+
+        public void Set(IBlock block) { _block = (Block)block; }
+        public bool IsNull { get { return _block == null; } }
 
         public void Clear()
         {
-            Block = null;
+            _block = null;
         }
     }
 }

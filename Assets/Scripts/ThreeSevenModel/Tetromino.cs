@@ -17,6 +17,7 @@ namespace ThreeSeven.Model
         public Point<int>[] Positions { get { return GetRelativePositionsFromPosition().ToArray(); } }
 
         public int          Length    { get { return _polyomino.Length; } }
+        public Size<int>    Size      { get { return _polyomino.Size; } }
 
         private List<Block> _blocks = new List<Block>();
         private Polyomino _polyomino;
@@ -57,6 +58,8 @@ namespace ThreeSeven.Model
     {
         public static void Foreach(this Tetromino @this, Action<Point<int>, IBlock> action)
         {
+            if (@this == null) return;
+
             for(int i = 0; i < @this.Length; i++)
             {
                 action(@this.Positions[i], @this.Blocks[i]);
@@ -65,6 +68,8 @@ namespace ThreeSeven.Model
 
         public static void Foreach(this Tetromino @this, Action<int, Point<int>, IBlock> action)
         {
+            if (@this == null) return;
+
             var index = 0;
             for (int i = 0; i < @this.Length; i++)
             {

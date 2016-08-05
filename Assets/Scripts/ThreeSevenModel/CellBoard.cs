@@ -21,7 +21,7 @@ namespace ThreeSeven.Model
             }
             set
             {
-                Cells.ForEach((point, cell) => cell.Block = value.Get(point));
+                Cells.ForEach((point, cell) => cell.Set(value.Get(point)));
             }
         }
 
@@ -42,19 +42,18 @@ namespace ThreeSeven.Model
     {
         private readonly int topMask = 2;
 
+        public Point<int> Center { get { return new Point<int> { X = ActualSize.Width / 2, Y = ActualSize.Height / 2 }; } }
         public int TopMask { get; set; }
 
         public override Size<int> ActualSize { get { return new Size<int> { Width = Size.Width, Height = Size.Height - TopMask }; } }
 
-        public override Cell[,] ActualCells
+        public override Cell[,] ActualCells { get { return GetActualCells(); } }
+        private Cell[,] GetActualCells()
         {
-            get
-            {
-                var actualCells = new Cell[ActualSize.Width, ActualSize.Height];
-                actualCells.AllPoints()
-                           .ForEach(point => actualCells.Set(point, Cells.Get(point.Add(new Size<int> { Width = 0, Height = TopMask }))));
-                return actualCells;
-            }
+            var actualCells = new Cell[ActualSize.Width, ActualSize.Height];
+            actualCells.AllPoints()
+                       .ForEach(point => actualCells.Set(point, Cells.Get(point.Add(new Size<int> { Width = 0, Height = TopMask }))));
+            return actualCells;
         }
 
         public MaskedCellBoard(Size<int> size) : base(size)
