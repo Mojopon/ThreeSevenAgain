@@ -46,8 +46,6 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
 
     public GameBoard(Size<int> size) : base(size)
     {
-        _gameBoardCellsStream.OnNext(ActualCells);
-
         Start();
     }
 
@@ -58,6 +56,13 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
 
         currentTetromino = NextTetromino;
+
+        UpdateGameBoardCellsObservable();
+    }
+
+    private void UpdateGameBoardCellsObservable()
+    {
+        _gameBoardCellsStream.OnNext(ActualCells);
     }
 
     public bool MoveLeft()
@@ -80,16 +85,11 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
         if (CanMoveCurrentTetrominoTo(newPosition))
         {
             currentTetromino.Position = newPosition;
-            UpdateGameBoard();
+            UpdateGameBoardCellsObservable();
             return true;
         }
 
         return false;
-    }
-
-    private void UpdateGameBoard()
-    {
-        _gameBoardCellsStream.OnNext(ActualCells);
     }
 
     private bool CanMoveCurrentTetrominoTo(Point<int> newPosition)
@@ -128,6 +128,40 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
     private bool IsOutOfRange(Point<int> point)
     {
         return 0 > point.X || 0 > point.Y || point.X >= Size.Width || point.Y >= Size.Height;
+    }
+
+    public bool Turn() { return Turn(true); }
+
+    public bool Turn(bool clockowise)
+    {
+        return TurnCurrentTetromino(clockowise);
+    }
+
+    private bool TurnCurrentTetromino(bool clockowise)
+    {
+        if(CanTurnCurrentTetromino(clockowise))
+        {
+            currentTetromino.Turn(clockowise);
+            UpdateGameBoardCellsObservable();
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool CanTurnCurrentTetromino(bool clockowise)
+    {
+        bool canMove = false;
+        currentTetromino.Turn(clockowise);
+
+        if (CanPlaceCurrentTetromino())
+        {
+            canMove = true;
+        }
+
+        currentTetromino.Turn(!clockowise);
+
+        return canMove;
     }
 
     private bool PlaceTetromino()

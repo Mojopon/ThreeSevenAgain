@@ -34,6 +34,10 @@ public class DisplayGameBoard : MonoBehaviour
         {
             _gameboard.MoveDown();
         }
+        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            _gameboard.Turn();
+        }
     }
 
     void UpdateGameBoardObjects(Cell[,] cells)
