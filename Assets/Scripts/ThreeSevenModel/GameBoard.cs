@@ -8,7 +8,7 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
     public IObservable<Cell[,]> GameBoardCellsObservable { get { return _gameBoardCellsStream.AsObservable(); } }
     private ISubject<Cell[,]> _gameBoardCellsStream = new BehaviorSubject<Cell[,]>(null);
 
-    private Func<Tetromino> _produceTetromino = new TetrominoFactory().Create;
+    private Func<Tetromino> _createTetromino = new TetrominoFactory().Create;
 
     private Tetromino _currentTetromino;
 
@@ -50,7 +50,7 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
 
     public void SetTetrominoFactory(ITetrominoFactory factory)
     {
-        _produceTetromino = factory.Create;
+        _createTetromino = factory.Create;
     }
 
     public void Start()
@@ -61,7 +61,7 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
 
     private void PrepareNextTetromino()
     {
-        NextTetromino = _produceTetromino();
+        NextTetromino = _createTetromino();
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
 
         _currentTetromino = NextTetromino;

@@ -14,12 +14,14 @@ namespace ThreeSeven.Model
             Create = CreateNext;
         }
 
+        public TetrominoFactory(Random random) : this()
         {
             _random = random;
         }
 
         private Tetromino CreateNext()
         {
+            var tetromino = new Tetromino(Polyomino.Create(_random), () => Block.Create(_random));
 
             return tetromino;
         }
