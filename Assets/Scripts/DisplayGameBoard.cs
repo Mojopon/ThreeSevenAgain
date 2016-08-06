@@ -14,10 +14,13 @@ public class DisplayGameBoard : MonoBehaviour
     void Start()
     {
         _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
+        _gameboard.SetTetrominoFactory(new TetrominoFactory(new System.Random(893)));
 
         _gameboard.GameBoardCellsObservable
                   .Subscribe(cells => UpdateGameBoardObjects(cells))
                   .AddTo(gameObject);
+
+        _gameboard.Start();
     }
 
     void Update()
@@ -37,6 +40,10 @@ public class DisplayGameBoard : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             _gameboard.Turn();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _gameboard.Place();
         }
     }
 

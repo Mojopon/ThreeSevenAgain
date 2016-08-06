@@ -24,8 +24,6 @@ namespace ThreeSeven.Model
 
     public class Block : IBlock
     {
-        static Random random = new Random();
-
         public ThreeSevenBlock BlockType { get; private set; }
         
         public Block(ThreeSevenBlock blockType)
@@ -44,6 +42,11 @@ namespace ThreeSeven.Model
         }
 
         public static Block Create()
+        {
+            return Create(new Random());
+        }
+
+        public static Block Create(Random random)
         {
             return new Block((ThreeSevenBlock)random.Next(1, 7 + 1));
         }

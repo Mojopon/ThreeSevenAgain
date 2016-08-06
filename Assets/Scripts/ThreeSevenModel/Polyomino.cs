@@ -15,10 +15,20 @@ namespace ThreeSeven.Model
     {
         public static Polyomino Create()
         {
-            return Create(PolyominoIndex.I);
+            return Create(new Random());
         }
 
-        public static Polyomino Create(PolyominoIndex polyminoIndex)
+        public static Polyomino Create(Random random)
+        {
+            return CreatePolyomino(GetRandomPolyominoIndex(random));
+        }
+
+        private static PolyominoIndex GetRandomPolyominoIndex(Random random)
+        {
+            return (PolyominoIndex)(random.Next(Table.Count) + 1);
+        }
+
+        private static Polyomino CreatePolyomino(PolyominoIndex polyminoIndex)
         {
             return new Polyomino(Table[polyminoIndex]);
         }
