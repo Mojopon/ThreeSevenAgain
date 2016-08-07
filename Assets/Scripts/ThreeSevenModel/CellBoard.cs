@@ -11,17 +11,13 @@ namespace ThreeSeven.Model
         public Cell[,] Cells { get; protected set; }
         public virtual Cell[,] ActualCells { get { return Cells; } }
 
-        public Block[,] CellsClone
+        public Cell[,] CellsClone
         {
             get
             {
-                var cellsClone = new Block[Size.Width, Size.Height];
-                Cells.ForEach((point, cell) => cellsClone.Set(point, cell.Block));
+                var cellsClone = new Cell[Size.Width, Size.Height];
+                Cells.ForEach((point, cell) => cellsClone.Set(point, cell));
                 return cellsClone;
-            }
-            set
-            {
-                Cells.ForEach((point, cell) => cell.Set(value.Get(point)));
             }
         }
 
