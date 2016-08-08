@@ -5,6 +5,11 @@ using UniRx;
 
 public class GameBoard : MaskedCellBoard, IGameBoardObservable
 {
+    public int NumberOfNextTetrominos = 1;
+
+    public Point<int>[] CurrentTetrominoPositions { get { return _currentTetromino.Positions; } }
+    public IBlock[]     CurrentTetrominoBlocks    { get { return _currentTetromino.Blocks; } }
+
     public IObservable<Cell[,]> GameBoardCellsObservable { get { return _gameBoardCellsStream.AsObservable(); } }
     private ISubject<Cell[,]> _gameBoardCellsStream = new BehaviorSubject<Cell[,]>(null);
 

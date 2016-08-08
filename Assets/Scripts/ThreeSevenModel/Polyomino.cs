@@ -23,6 +23,11 @@ namespace ThreeSeven.Model
             return CreatePolyomino(GetRandomPolyominoIndex(random));
         }
 
+        public static Polyomino Create(PolyominoIndex index)
+        {
+            return CreatePolyomino(index);
+        }
+
         private static PolyominoIndex GetRandomPolyominoIndex(Random random)
         {
             return (PolyominoIndex)(random.Next(Table.Count) + 1);
