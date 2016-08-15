@@ -20,12 +20,17 @@ namespace ThreeSeven.Model
 
         public static Polyomino Create(Random random)
         {
-            return CreatePolyomino(GetRandomPolyominoIndex(random));
+            return Create(GetRandomPolyominoIndex(random));
         }
 
         public static Polyomino Create(PolyominoIndex index)
         {
-            return CreatePolyomino(index);
+            return CreatePolyomino(Table[index]);
+        }
+
+        public static Polyomino Create(List<Point<int>[]> patterns)
+        {
+            return new Polyomino(patterns);
         }
 
         private static PolyominoIndex GetRandomPolyominoIndex(Random random)
@@ -33,9 +38,9 @@ namespace ThreeSeven.Model
             return (PolyominoIndex)(random.Next(Table.Count) + 1);
         }
 
-        private static Polyomino CreatePolyomino(PolyominoIndex polyminoIndex)
+        private static Polyomino CreatePolyomino(List<Point<int>[]> patterns)
         {
-            return new Polyomino(Table[polyminoIndex]);
+            return new Polyomino(patterns);
         }
 
         public Size<int> Size { get { return _size; } }
