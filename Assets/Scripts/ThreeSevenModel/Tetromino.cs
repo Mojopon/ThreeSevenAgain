@@ -22,7 +22,12 @@ namespace ThreeSeven.Model
         private List<Block> _blocks = new List<Block>();
         private Polyomino _polyomino;
 
-        public Tetromino(Polyomino polyomino, Func<Block> blockFactory)
+        public static Tetromino Create(Polyomino polyomino, Func<Block> blockFactory)
+        {
+            return new Tetromino(polyomino, blockFactory);
+        }
+
+        private Tetromino(Polyomino polyomino, Func<Block> blockFactory)
         {
             _polyomino = polyomino;
 

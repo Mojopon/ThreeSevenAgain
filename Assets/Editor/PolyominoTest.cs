@@ -4,10 +4,10 @@ using NUnit.Framework;
 using ThreeSeven.Model;
 using System;
 
-[TestFixture]
-public class PolyominoTest
+public static class PolyominoTestFixture
 {
-    List<Point<int>[]> patterns = new List<Point<int>[]>() {
+    public static List<Point<int>[]> patterns = new List<Point<int>[]>()
+    {
                                    new Point<int>[] {
                                    new Point<int>() {X = 2, Y = 0 },
                                    new Point<int>() {X = 2, Y = 1 },
@@ -32,7 +32,13 @@ public class PolyominoTest
                                    new Point<int>() {X = 2, Y = 1 },
                                    new Point<int>() {X = 3, Y = 1 },
                                    },
-                };
+    };
+}
+
+[TestFixture]
+public class PolyominoTest
+{
+    List<Point<int>[]> patterns = PolyominoTestFixture.patterns;
 
     [Test]
     public void Create_Polyomino_by_List_of_Array_of_Points()

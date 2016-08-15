@@ -21,7 +21,7 @@ namespace ThreeSeven.Model
 
         private Tetromino CreateNext()
         {
-            var tetromino = new Tetromino(Polyomino.Create(_random), () => Block.Create(_random));
+            var tetromino = Tetromino.Create(Polyomino.Create(_random), () => Block.Create(_random));
 
             return tetromino;
         }

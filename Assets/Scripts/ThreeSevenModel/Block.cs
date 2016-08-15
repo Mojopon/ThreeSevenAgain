@@ -5,7 +5,7 @@ namespace ThreeSeven.Model
 {
     public enum ThreeSevenBlock
     {
-        NoBlock,
+        None,
         One,
         Two,
         Three,
@@ -17,25 +17,25 @@ namespace ThreeSeven.Model
 
     public interface IBlock
     {
-        ThreeSevenBlock BlockType { get; }
+        ThreeSevenBlock Type { get; }
 
         int GetNumber();
     }
 
     public class Block : IBlock
     {
-        public ThreeSevenBlock BlockType { get; private set; }
+        public ThreeSevenBlock Type { get; private set; }
         
-        public Block(ThreeSevenBlock blockType)
+        private Block(ThreeSevenBlock blockType)
         {
-            BlockType = blockType;
+            Type = blockType;
         }
 
         public int GetNumber()
         {
-            if(BlockType > 0 && 7 >= (int)BlockType)
+            if(Type > 0 && 7 >= (int)Type)
             {
-                return (int)BlockType;
+                return (int)Type;
             }
 
             return 0;
@@ -48,13 +48,18 @@ namespace ThreeSeven.Model
 
         public static Block Create(Random random)
         {
-            return new Block((ThreeSevenBlock)random.Next(1, 7 + 1));
+            return Create((ThreeSevenBlock)random.Next(1, 7 + 1));
+        }
+
+        public static Block Create(ThreeSevenBlock blockType)
+        {
+            return new Block(blockType);
         }
     }
 
     public class NoBlock : IBlock
     {
-        public ThreeSevenBlock BlockType { get { return ThreeSevenBlock.NoBlock; } }
+        public ThreeSevenBlock Type { get { return ThreeSevenBlock.None; } }
 
         public int GetNumber() { return 0; }
     }

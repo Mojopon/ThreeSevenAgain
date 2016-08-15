@@ -56,7 +56,7 @@ public class GameBoardTest
         var tetrominoFactory = Substitute.For<ITetrominoFactory>();
         tetrominoFactory.Create.Returns(() =>
         {
-            return new Tetromino(Polyomino.Create(PolyominoIndex.I), blockFactory);
+            return Tetromino.Create(Polyomino.Create(PolyominoIndex.I), blockFactory);
         });
 
         gameBoard.TopMask = 0;
@@ -78,13 +78,13 @@ public class GameBoardTest
     {
         return new List<Block>()
         {
-            new Block(ThreeSevenBlock.One),
-            new Block(ThreeSevenBlock.Two),
-            new Block(ThreeSevenBlock.Three),
-            new Block(ThreeSevenBlock.Four),
-            new Block(ThreeSevenBlock.Five),
-            new Block(ThreeSevenBlock.Six),
-            new Block(ThreeSevenBlock.Seven),
+            Block.Create(ThreeSevenBlock.One),
+            Block.Create(ThreeSevenBlock.Two),
+            Block.Create(ThreeSevenBlock.Three),
+            Block.Create(ThreeSevenBlock.Four),
+            Block.Create(ThreeSevenBlock.Five),
+            Block.Create(ThreeSevenBlock.Six),
+            Block.Create(ThreeSevenBlock.Seven),
         };
     }
 }
