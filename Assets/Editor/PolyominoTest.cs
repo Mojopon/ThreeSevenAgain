@@ -48,6 +48,12 @@ public class PolyominoTest
 
         // number of points will be the length of the polyomino
         Assert.AreEqual(patterns[0].Length, polyomino.Length);
+    }
+
+    [Test]
+    public void Size_Will_Be_Maximum_Number_in_the_Points()
+    {
+        var polyomino = Polyomino.Create(patterns);
 
         // it calculates polyomino size from the occupieng space.
         // for example, if the minimum point is <0, 0> and the maximum point is <3, 3>,

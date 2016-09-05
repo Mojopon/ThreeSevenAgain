@@ -7,6 +7,7 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
 {
     public int NumberOfNextTetrominos = 1;
 
+    public Tetromino    CurrentTetromino          { get { return _currentTetromino; } }
     public Point<int>[] CurrentTetrominoPositions { get { return _currentTetromino.Positions; } }
     public IBlock[]     CurrentTetrominoBlocks    { get { return _currentTetromino.Blocks; } }
 
@@ -67,6 +68,8 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
     private void PrepareNextTetromino()
     {
         NextTetromino = _createTetromino();
+
+        //place NextTetromino on Center
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
 
         _currentTetromino = NextTetromino;
