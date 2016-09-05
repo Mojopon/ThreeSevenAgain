@@ -10,6 +10,10 @@ using UnityEngine;
 public class GameBoardTest
 {
     GameBoard gameBoard;
+
+    Func<Block> blockFactory;
+    ITetrominoFactory tetrominoFactory;
+
     [SetUp]
     public void Initialize()
     {
@@ -43,23 +47,21 @@ public class GameBoardTest
     }
 
     [Test]
+    public void It_Masks_Top_of_the_Board()
+    {
+
+    }
+
+    [Test]
     public void Can_Set_TetrominoFactory()
     {
-        var blocks = GetBlocksFromOneToSeven();
-        Func<Block> blockFactory = () =>
-        {
-            var block = blocks[0];
-            blocks.RemoveAt(0);
-            return block;
-        };
+        var mask = 2;
+        var blocks       = GetBlocksFromOneToSeven();
+        var patterns     = PolyominoTestFixture.patterns;
+        blockFactory     = PrepareBlockFactory();
+        tetrominoFactory = PrepareTetrominoFactory(patterns, blockFactory);
 
-        var tetrominoFactory = Substitute.For<ITetrominoFactory>();
-        tetrominoFactory.Create.Returns(() =>
-        {
-            return Tetromino.Create(Polyomino.Create(PolyominoIndex.I), blockFactory);
-        });
-
-        gameBoard.TopMask = 0;
+        gameBoard.TopMask = mask;
         gameBoard.SetTetrominoFactory(tetrominoFactory);
         gameBoard.Start();
 
@@ -72,6 +74,57 @@ public class GameBoardTest
         {
             Assert.AreEqual(i + 1, currentTetrominoBlocks[i].GetNumber());
         }
+
+        var pattern = patterns[0];
+
+        // tetromino should be added to the center of the gameboard.
+        // it also counts tetromino size.
+        var xPointToPlaceTetromino = gameBoard.Center.X - gameBoard.CurrentTetromino.Size.Width / 2;
+        Assert.AreEqual(xPointToPlaceTetromino, gameBoard.CurrentTetromino.Position.X);
+
+        // check if the tetromino blocks are placed to the positions it should be.
+        for (int i = 0; i < currentTetrominoBlocks.Length; i++)
+        {
+            Assert.AreEqual(xPointToPlaceTetromino + pattern[i].X, gameBoard.CurrentTetrominoPositions[i].X);
+            Assert.AreEqual(pattern[i].Y, gameBoard.CurrentTetrominoPositions[i].Y);
+        }
+
+        var cellsWithoutMasked = gameBoard.CellsClone;
+        gameBoard.ActualCells.ForEach((point, cell) => 
+        {
+            Debug.Log(point);
+            Assert.AreEqual(cellsWithoutMasked[point.X, point.Y + mask].Block.GetNumber(), cell.Block.GetNumber());
+        });
+    }
+
+    [Test]
+    public void Can_Move_Tetromino()
+    {
+
+    }
+
+    private Func<Block> PrepareBlockFactory()
+    {
+        var blocks = GetBlocksFromOneToSeven();
+
+        return () =>
+        {
+            var block = blocks[0];
+            blocks.RemoveAt(0);
+            return block;
+        };
+    }
+
+    private ITetrominoFactory PrepareTetrominoFactory(List<Point<int>[]> patterns, Func<Block> blockFactory)
+    {
+        var tetrominoFactoryMock = Substitute.For<ITetrominoFactory>();
+
+        tetrominoFactoryMock.Create.Returns(() =>
+        {
+            return Tetromino.Create(Polyomino.Create(patterns), blockFactory);
+        });
+
+        return tetrominoFactoryMock;
     }
 
     private List<Block> GetBlocksFromOneToSeven()
