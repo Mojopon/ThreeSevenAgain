@@ -4,6 +4,7 @@ using ThreeSeven.Model;
 using NSubstitute;
 using System.Collections.Generic;
 using System;
+using UniRx;
 using UnityEngine;
 
 [TestFixture]
@@ -14,6 +15,8 @@ public class GameBoardTest
     Func<Block> blockFactory;
     ITetrominoFactory tetrominoFactory;
 
+    CompositeDisposable subscriptions;
+
     [SetUp]
     public void Initialize()
     {
@@ -22,6 +25,14 @@ public class GameBoardTest
 
         gameBoard = new GameBoard(new Size<int> { Width = width, Height = height });
         gameBoard.NumberOfNextTetrominos = 1;
+
+        subscriptions = new CompositeDisposable();
+    }
+
+    [TearDown]
+    public void DisposeSubscriptions()
+    {
+        subscriptions.Dispose();
     }
 
     [Test]
@@ -40,7 +51,7 @@ public class GameBoardTest
     }
 
     [Test]
-    public void Can_Set_TetrominoFactory()
+    public void Produce_Next_Tetromino()
     {
         var blocks       = GetBlocksFromOneToSeven();
         var patterns     = PolyominoTestFixture.patterns;
@@ -73,14 +84,29 @@ public class GameBoardTest
             Assert.AreEqual(xPointToPlaceTetromino + pattern[i].X, gameBoard.CurrentTetrominoPositions[i].X);
             Assert.AreEqual(pattern[i].Y, gameBoard.CurrentTetrominoPositions[i].Y);
         }
-
-        var cellsWithoutMasked = gameBoard.CellsClone;
     }
 
     [Test]
-    public void Can_Move_Tetromino()
+    public void It_Will_Notify_GameBoardEvents_When_Updated()
     {
+        GameBoardEvents notifiedEvent = null;
 
+        gameBoard.GameBoardObservable
+                 .Subscribe(x => notifiedEvent = x)
+                 .AddTo(subscriptions);
+                 
+
+        Assert.IsNull(notifiedEvent);
+
+        // starting GameBoard will also notify GameBoardEvents to its subscribers
+        gameBoard.Start();
+        Assert.IsNotNull(notifiedEvent);
+
+        var cellsClone = gameBoard.CellsClone;
+        notifiedEvent.Cells.ForEach((point, cell) =>
+        {
+            Assert.AreEqual(cell.Block, cellsClone[point.X, point.Y].Block);
+        });
     }
 
     private Func<Block> PrepareBlockFactory()

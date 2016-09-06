@@ -62,5 +62,26 @@ namespace ThreeSeven.Model
         public ThreeSevenBlock Type { get { return ThreeSevenBlock.None; } }
 
         public int GetNumber() { return 0; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            NoBlock b = obj as NoBlock;
+            if ((System.Object)b == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
