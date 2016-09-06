@@ -16,9 +16,9 @@ public class DisplayGameBoard : MonoBehaviour
         _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
         _gameboard.SetTetrominoFactory(new TetrominoFactory(new System.Random(893)));
 
-        _gameboard.GameBoardCellsObservable
+        _gameboard.GameBoardObservable
                   .Skip(1)
-                  .Subscribe(cells => UpdateGameBoardObjects(cells))
+                  .Subscribe(events => UpdateGameBoardObjects(events))
                   .AddTo(gameObject);
 
         _gameboard.Start();
@@ -48,14 +48,22 @@ public class DisplayGameBoard : MonoBehaviour
         }
     }
 
-    void UpdateGameBoardObjects(Cell[,] cells)
+    void UpdateGameBoardObjects(GameBoardEvents events)
     {
         if (_gameboardObjects == null)
         {
             _gameboardObjects = new NumberBlock[_gameboard.Size.Width, _gameboard.Size.Height];
-            cells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y] = Instantiate(_BlockPrefab, point.ToVector3().InvertYAxis(), Quaternion.identity) as NumberBlock);
+            events.Cells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y] = Instantiate(_BlockPrefab, point.ToVector3().InvertYAxis(), Quaternion.identity) as NumberBlock);
         }
 
-        cells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y].SetNumber(cell.Block.GetNumber()));
+        events.Cells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y].SetNumber(cell.Block.GetNumber()));
+
+        if(events.TetrominoEvent.IsNotNull)
+        {
+            events.TetrominoEvent.CurrentTetromino.Foreach((point, block) => 
+            {
+                _gameboardObjects[point.X, point.Y].SetNumber(block.GetNumber());
+            });
+        }
     }
 }

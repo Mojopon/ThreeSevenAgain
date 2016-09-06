@@ -4,6 +4,25 @@ using System;
 using UniRx;
 using UnityEngine;
 
+public class GameBoardEvents
+{
+    public bool IsReady { get { return Cells != null; } }
+
+    public Cell[,] Cells = null;
+    public CurrentTetrominoEvent TetrominoEvent = null;
+}
+
+public class CurrentTetrominoEvent
+{
+    public bool IsNotNull { get { return CurrentTetromino != null; } }
+
+    public Tetromino    CurrentTetromino = null;
+    public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
+    public IBlock[]     CurrentTetrominoBlocks    { get { return CurrentTetromino.Blocks; } }
+
+    public Point<int>   CurrentTetrominoMovement = new Point<int>() { X = 0, Y = 0 };
+}
+
 public class GameBoard : CellBoard, IGameBoardObservable
 {
     public int NumberOfNextTetrominos = 1;
@@ -12,8 +31,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
     public Point<int>[] CurrentTetrominoPositions { get { return _currentTetromino.Positions; } }
     public IBlock[]     CurrentTetrominoBlocks    { get { return _currentTetromino.Blocks; } }
 
-    public IObservable<Cell[,]> GameBoardCellsObservable { get { return _gameBoardCellsStream.AsObservable(); } }
-    private ISubject<Cell[,]> _gameBoardCellsStream = new BehaviorSubject<Cell[,]>(null);
+    public  IObservable<GameBoardEvents> GameBoardObservable { get { return _gameBoardStream.AsObservable(); } }
+    private ISubject<GameBoardEvents> _gameBoardStream = new BehaviorSubject<GameBoardEvents>(null);
 
     private Func<Tetromino> _createTetromino = new TetrominoFactory().Create;
 
@@ -29,22 +48,6 @@ public class GameBoard : CellBoard, IGameBoardObservable
             {
                 _nextTetromino = value;
             }
-        }
-    }
-
-    public override Cell[,] CellsClone
-    {
-        get
-        {
-            var cells = base.CellsClone;
-            _currentTetromino.Foreach((point, block) =>
-            {
-                if (!IsOutOfRange(point))
-                {
-                    cells[point.X, point.Y].Set(block);
-                }
-            });
-            return cells;
         }
     }
 
@@ -76,9 +79,22 @@ public class GameBoard : CellBoard, IGameBoardObservable
         UpdateGameBoardCellsObservable();
     }
 
+    private GameBoardEvents _gameboardEvents = null;
     private void UpdateGameBoardCellsObservable()
     {
-        _gameBoardCellsStream.OnNext(CellsClone);
+        _gameboardEvents = new GameBoardEvents();
+        _gameboardEvents.Cells = this.CellsClone;
+        _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
+
+        {
+            CurrentTetromino = this._currentTetromino,
+        };
+
+        if (_gameboardEvents.Cells != null)
+        {
+            _gameBoardStream.OnNext(_gameboardEvents);
+            _gameboardEvents = null;
+        }
     }
 
     public bool MoveLeft()

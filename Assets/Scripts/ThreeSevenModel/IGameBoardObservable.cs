@@ -5,5 +5,5 @@ using ThreeSeven.Model;
 
 public interface IGameBoardObservable
 {
-    IObservable<Cell[,]> GameBoardCellsObservable { get; }
+    IObservable<GameBoardEvents> GameBoardObservable { get; }
 }

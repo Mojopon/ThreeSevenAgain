@@ -9,7 +9,7 @@ namespace ThreeSeven.Model
         public Point<int> Center { get { return new Point<int> { X = Size.Width / 2, Y = Size.Height / 2 }; } }
 
         public Cell[,] Cells { get; protected set; }
-        public virtual Cell[,] CellsClone
+        public Cell[,] CellsClone
         {
             get
             {
