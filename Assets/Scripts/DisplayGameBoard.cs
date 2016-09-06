@@ -17,6 +17,7 @@ public class DisplayGameBoard : MonoBehaviour
         _gameboard.SetTetrominoFactory(new TetrominoFactory(new System.Random(893)));
 
         _gameboard.GameBoardCellsObservable
+                  .Skip(1)
                   .Subscribe(cells => UpdateGameBoardObjects(cells))
                   .AddTo(gameObject);
 
@@ -51,10 +52,10 @@ public class DisplayGameBoard : MonoBehaviour
     {
         if (_gameboardObjects == null)
         {
-            _gameboardObjects = new NumberBlock[_gameboard.ActualSize.Width, _gameboard.ActualSize.Height];
-            _gameboard.ActualCells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y] = Instantiate(_BlockPrefab, point.ToVector3().InvertYAxis(), Quaternion.identity) as NumberBlock);
+            _gameboardObjects = new NumberBlock[_gameboard.Size.Width, _gameboard.Size.Height];
+            cells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y] = Instantiate(_BlockPrefab, point.ToVector3().InvertYAxis(), Quaternion.identity) as NumberBlock);
         }
 
-        _gameboard.ActualCells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y].SetNumber(cell.Block.GetNumber()));
+        cells.ForEach((point, cell) => _gameboardObjects[point.X, point.Y].SetNumber(cell.Block.GetNumber()));
     }
 }

@@ -2,8 +2,9 @@
 using ThreeSeven.Model;
 using System;
 using UniRx;
+using UnityEngine;
 
-public class GameBoard : MaskedCellBoard, IGameBoardObservable
+public class GameBoard : CellBoard, IGameBoardObservable
 {
     public int NumberOfNextTetrominos = 1;
 
@@ -31,18 +32,16 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
         }
     }
 
-    public override Cell[,] ActualCells
+    public override Cell[,] CellsClone
     {
         get
         {
-            var cells = base.ActualCells;
-            _currentTetromino.Foreach((point, block) => 
+            var cells = base.CellsClone;
+            _currentTetromino.Foreach((point, block) =>
             {
-                var actualPoint = new Point<int> { X = point.X, Y = point.Y - TopMask };
-
-                if (!IsOutOfRange(actualPoint))
+                if (!IsOutOfRange(point))
                 {
-                    cells[actualPoint.X, actualPoint.Y].Set(block);
+                    cells[point.X, point.Y].Set(block);
                 }
             });
             return cells;
@@ -79,7 +78,7 @@ public class GameBoard : MaskedCellBoard, IGameBoardObservable
 
     private void UpdateGameBoardCellsObservable()
     {
-        _gameBoardCellsStream.OnNext(ActualCells);
+        _gameBoardCellsStream.OnNext(CellsClone);
     }
 
     public bool MoveLeft()

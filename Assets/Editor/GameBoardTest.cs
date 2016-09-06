@@ -19,10 +19,8 @@ public class GameBoardTest
     {
         var width = 7;
         var height = 14;
-        var mask = 2;
 
         gameBoard = new GameBoard(new Size<int> { Width = width, Height = height });
-        gameBoard.TopMask = mask;
         gameBoard.NumberOfNextTetrominos = 1;
     }
 
@@ -31,7 +29,6 @@ public class GameBoardTest
     {
         var width = 7;
         var height = 14;
-        var mask = 2;
 
         var gameBoard = new GameBoard(new Size<int> { Width = width, Height = height });
         Assert.AreEqual(gameBoard.Size.Width, width);
@@ -40,28 +37,16 @@ public class GameBoardTest
         var cellsClone = gameBoard.CellsClone;
         Assert.AreEqual(cellsClone.GetLength(0), width);
         Assert.AreEqual(cellsClone.GetLength(1), height);
-
-        var actualCells = gameBoard.ActualCells;
-        Assert.AreEqual(actualCells.GetLength(0), width);
-        Assert.AreEqual(actualCells.GetLength(1), height - mask);
-    }
-
-    [Test]
-    public void It_Masks_Top_of_the_Board()
-    {
-
     }
 
     [Test]
     public void Can_Set_TetrominoFactory()
     {
-        var mask = 2;
         var blocks       = GetBlocksFromOneToSeven();
         var patterns     = PolyominoTestFixture.patterns;
         blockFactory     = PrepareBlockFactory();
         tetrominoFactory = PrepareTetrominoFactory(patterns, blockFactory);
 
-        gameBoard.TopMask = mask;
         gameBoard.SetTetrominoFactory(tetrominoFactory);
         gameBoard.Start();
 
@@ -90,11 +75,6 @@ public class GameBoardTest
         }
 
         var cellsWithoutMasked = gameBoard.CellsClone;
-        gameBoard.ActualCells.ForEach((point, cell) => 
-        {
-            Debug.Log(point);
-            Assert.AreEqual(cellsWithoutMasked[point.X, point.Y + mask].Block.GetNumber(), cell.Block.GetNumber());
-        });
     }
 
     [Test]
