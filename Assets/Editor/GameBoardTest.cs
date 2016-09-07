@@ -235,7 +235,7 @@ public class GameBoardTest
     }
 
     [Test]
-    public void Can_Move_Tetromino_In_The_Cells()
+    public void Can_Rotate_Tetromino_In_The_Cells()
     {
         Tetromino currentTetromino = null;
         gameBoard.GameBoardObservable
@@ -247,6 +247,35 @@ public class GameBoardTest
         gameBoard.StartGame();
         gameBoard.AddNextTetromino();
         var firstTetrominoPos = currentTetromino.Position;
+
+        Point<int>[] pattern = null;
+        Assert.IsTrue(gameBoard.Turn());
+        pattern = patterns[1];
+        currentTetromino.Foreach((id, point, block) =>
+        {
+            Assert.AreEqual(point, pattern[id].Add(currentTetromino.Position));
+        });
+
+        Assert.IsTrue(gameBoard.Turn());
+        pattern = patterns[2];
+        currentTetromino.Foreach((id, point, block) =>
+        {
+            Assert.AreEqual(point, pattern[id].Add(currentTetromino.Position));
+        });
+
+        Assert.IsTrue(gameBoard.Turn());
+        pattern = patterns[3];
+        currentTetromino.Foreach((id, point, block) =>
+        {
+            Assert.AreEqual(point, pattern[id].Add(currentTetromino.Position));
+        });
+
+        Assert.IsTrue(gameBoard.Turn());
+        pattern = patterns[0];
+        currentTetromino.Foreach((id, point, block) =>
+        {
+            Assert.AreEqual(point, pattern[id].Add(currentTetromino.Position));
+        });
     }
 
     private Func<Block> PrepareBlockFactory()
