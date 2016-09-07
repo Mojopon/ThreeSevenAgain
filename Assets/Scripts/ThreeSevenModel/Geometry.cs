@@ -50,6 +50,18 @@ namespace ThreeSeven.Model
         public static Point<int> Add(this Point<int> @this, Size<int> size)
         { return new Point<int> { X = @this.X + size.Width, Y = @this.Y + size.Height }; }
 
+        public static Point<int> Add(this Point<int> @this, int x, int y)
+        { return new Point<int> { X = @this.X + x, Y = @this.Y + y }; }
+
+        public static Point<int> Subtract(this Point<int> @this, Point<int> point)
+        { return new Point<int> { X = @this.X - point.X, Y = @this.Y - point.Y }; }
+
+        public static Point<int> Subtract(this Point<int> @this, Size<int> size)
+        { return new Point<int> { X = @this.X - size.Width, Y = @this.Y - size.Height }; }
+
+        public static Point<int> Subtract(this Point<int> @this, int x, int y)
+        { return new Point<int> { X = @this.X - x, Y = @this.Y - y }; }
+
         public static Size<int> Subtract(this Size<int> @this, Size<int> size)
         { return new Size<int> { Width = @this.Width - size.Width, Height = @this.Width - size.Height }; }
 

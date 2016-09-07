@@ -17,6 +17,10 @@ namespace ThreeSeven.Model
                 Cells.ForEach((point, cell) => cellsClone.Set(point, cell));
                 return cellsClone;
             }
+            set
+            {
+                value.ForEach((point, cell) => Cells.Set(point, cell));
+            }
         }
 
         public CellBoard(Size<int> size)
