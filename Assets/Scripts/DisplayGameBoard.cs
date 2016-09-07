@@ -14,14 +14,15 @@ public class DisplayGameBoard : MonoBehaviour
     void Start()
     {
         _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
-        _gameboard.SetTetrominoFactory(new TetrominoFactory(new System.Random(893)));
+        _gameboard.SetTetrominoFactory(new TetrominoFactory(new System.Random()));
 
         _gameboard.GameBoardObservable
                   .Skip(1)
                   .Subscribe(events => UpdateGameBoardObjects(events))
                   .AddTo(gameObject);
 
-        _gameboard.Start();
+        _gameboard.StartGame();
+        _gameboard.AddNextTetromino();
     }
 
     void Update()

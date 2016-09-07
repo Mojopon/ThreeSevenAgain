@@ -19,8 +19,6 @@ public class CurrentTetrominoEvent
     public Tetromino    CurrentTetromino = null;
     public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
     public IBlock[]     CurrentTetrominoBlocks    { get { return CurrentTetromino.Blocks; } }
-
-    public Point<int>   CurrentTetrominoMovement = new Point<int>() { X = 0, Y = 0 };
 }
 
 public class GameBoard : CellBoard, IGameBoardObservable
@@ -61,20 +59,23 @@ public class GameBoard : CellBoard, IGameBoardObservable
         _createTetromino = factory.Create;
     }
 
-    public void Start()
+    public void StartGame()
     {
         Clear();
         PrepareNextTetromino();
     }
 
+    public void AddNextTetromino()
+    {
+        //place NextTetromino on Center
+        NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
+        _currentTetromino = NextTetromino;
+        UpdateGameBoardCellsObservable();
+    }
+
     private void PrepareNextTetromino()
     {
         NextTetromino = _createTetromino();
-
-        //place NextTetromino on Center
-        NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
-
-        _currentTetromino = NextTetromino;
 
         UpdateGameBoardCellsObservable();
     }
@@ -216,5 +217,34 @@ public class GameBoard : CellBoard, IGameBoardObservable
     public override void Clear()
     {
         base.Clear();
+    }
+
+    public override string ToString()
+    {
+        int[,] boardNumbers = new int[this.Size.Width, this.Size.Height];
+
+        Cells.ForEach((point, cell) =>
+        {
+            boardNumbers[point.X, point.Y] = cell.Block.GetNumber();
+        });
+
+        CurrentTetromino.Foreach((point, block) =>
+        {
+            boardNumbers[point.X, point.Y] = block.GetNumber();
+        });
+
+        string str = "";
+
+        for (int y = 0; y < Size.Height; y++)
+        {
+            for (int x = 0; x < Size.Width; x++)
+            {
+                str += boardNumbers[x, y].ToString();
+            }
+
+            str += "\n";
+        }
+
+        return str;
     }
 }
