@@ -14,7 +14,7 @@ public class DisplayGameBoard : MonoBehaviour
     void Start()
     {
         _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
-        _gameboard.SetTetrominoFactory(new TetrominoFactory(new System.Random()));
+        _gameboard.SetTetrominoFactory(new TetrominoFactory());
 
         _gameboard.GameBoardObservable
                   .Skip(1)
@@ -65,6 +65,10 @@ public class DisplayGameBoard : MonoBehaviour
             {
                 _gameboardObjects[point.X, point.Y].SetNumber(block.GetNumber());
             });
+        }
+        else
+        {
+            _gameboard.AddNextTetromino();
         }
     }
 }

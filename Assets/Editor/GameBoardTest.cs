@@ -31,8 +31,7 @@ public class GameBoardTest
         gameBoard.NumberOfNextTetrominos = 1;
 
         patterns         = PolyominoTestFixture.patterns;
-        blockFactory     = PrepareBlockFactory();
-        tetrominoFactory = PrepareTetrominoFactory(patterns, blockFactory);
+        tetrominoFactory = new TetrominoFactory(() => Polyomino.Create(patterns));
 
         gameBoard.SetTetrominoFactory(tetrominoFactory);
 
@@ -78,11 +77,6 @@ public class GameBoardTest
         {
             Assert.AreEqual(cell.Block, cellsClone[point.X, point.Y].Block);
         });
-
-
-
-        var blocks = GetBlocksEnumArrayFromOneToSeven();
-
     }
 
     [Test]
@@ -205,7 +199,8 @@ public class GameBoardTest
         gameBoard.CellsClone = cellsClone;
 
         gameBoard.AddNextTetromino();
-        var firstTetrominoPos = currentTetromino.Position;
+        Point<int> firstTetrominoPos;
+        firstTetrominoPos = currentTetromino.Position;
 
         Assert.IsTrue(gameBoard.MoveDown());
         Assert.AreEqual(firstTetrominoPos.Add(0, 1), currentTetromino.Position);
@@ -224,14 +219,20 @@ public class GameBoardTest
         Assert.IsTrue(gameBoard.MoveDown());
         Assert.AreEqual(firstTetrominoPos.Add(0, 8), currentTetromino.Position);
         Assert.False(gameBoard.MoveDown());
-        Assert.AreEqual(firstTetrominoPos.Add(0, 8), currentTetromino.Position);
 
-        Assert.True(gameBoard.MoveRight());
-        Assert.AreEqual(firstTetrominoPos.Add(1, 8), currentTetromino.Position);
-        Assert.True(gameBoard.MoveDown());
-        Assert.AreEqual(firstTetrominoPos.Add(1, 9), currentTetromino.Position);
-        Assert.False(gameBoard.MoveDown());
-        Assert.AreEqual(firstTetrominoPos.Add(1, 9), currentTetromino.Position);
+        gameBoard.AddNextTetromino();
+        firstTetrominoPos = currentTetromino.Position;
+
+
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 1), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 2), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 3), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 4), currentTetromino.Position);
+        Assert.IsFalse(gameBoard.MoveDown());
     }
 
     [Test]
@@ -278,41 +279,48 @@ public class GameBoardTest
         });
     }
 
-    private Func<Block> PrepareBlockFactory()
+    [Test]
+    public void Place_Tetromino_When_Dropped_on_Other_Block()
     {
-        var blocks = GetBlocksEnumArrayFromOneToSeven();
+        Tetromino tetromino = null;
+        gameBoard.GameBoardObservable
+                 .Where(x => x != null && x.TetrominoEvent.IsNotNull)
+                 .Select(x => x.TetrominoEvent.CurrentTetromino)
+                 .Subscribe(x => tetromino = x)
+                 .AddTo(subscriptions);
 
-        return () =>
-        {
-            var block = blocks[0];
-            blocks.RemoveAt(0);
-            return block;
-        };
-    }
+        gameBoard.StartGame();
+        gameBoard.AddNextTetromino();
+        var firstTetrominoPos = tetromino.Position;
 
-    private ITetrominoFactory PrepareTetrominoFactory(List<Point<int>[]> patterns, Func<Block> blockFactory)
-    {
-        var tetrominoFactoryMock = Substitute.For<ITetrominoFactory>();
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 1), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 2), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 3), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 4), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 5), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 6), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 7), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 8), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 9), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 10), tetromino.Position);
 
-        tetrominoFactoryMock.Create.Returns(() =>
-        {
-            return Tetromino.Create(Polyomino.Create(patterns), blockFactory);
-        });
+        bool tetrominoCleared = false;
+        gameBoard.GameBoardObservable
+                 .Where(x => x != null && !x.TetrominoEvent.IsNotNull)
+                 .Subscribe(x => tetrominoCleared = true)
+                 .AddTo(subscriptions);
 
-        return tetrominoFactoryMock;
-    }
-
-    private List<Block> GetBlocksEnumArrayFromOneToSeven()
-    {
-        return new List<Block>()
-        {
-            Block.Create(ThreeSevenBlock.One),
-            Block.Create(ThreeSevenBlock.Two),
-            Block.Create(ThreeSevenBlock.Three),
-            Block.Create(ThreeSevenBlock.Four),
-            Block.Create(ThreeSevenBlock.Five),
-            Block.Create(ThreeSevenBlock.Six),
-            Block.Create(ThreeSevenBlock.Seven),
-        };
+        Assert.IsFalse(gameBoard.MoveDown());
+        Assert.IsTrue(tetrominoCleared);
     }
 }
