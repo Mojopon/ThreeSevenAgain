@@ -20,7 +20,7 @@ namespace ThreeSeven.Model
         }
 
         public void Set(IBlock block) { _block = (Block)block; }
-        public bool IsNull { get { return _block == null; } }
+        public bool IsNull { get { return (_block == null || _block.Type == ThreeSevenBlock.None); } }
 
         public void Clear()
         {

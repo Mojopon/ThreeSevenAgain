@@ -67,6 +67,32 @@ namespace ThreeSeven.Model
         public static void ForEach<T>(this T[,] @this, Action<Point<int>, T> action)
         { @this.AllPoints().ForEach(point => action(point, @this.Get(point))); }
 
+        public static void Swap<T>(this T[,] @this, Point<int> from, Point<int> to)
+        {
+            if (@this.IsOutOfRange(from) || @this.IsOutOfRange(to) || from.Equals(to)) return;
+
+            var temp = @this.Get(to);
+            @this.Set(to, @this.Get(from));
+            @this.Set(from, temp);
+        }
+
+        public static bool IsOutOfRange<T>(this T[,] @this, Point<int> pos)
+        {
+            if (0 > pos.X || 0 > pos.Y)
+            {
+                return true;
+            }
+
+            var size = @this.Size();
+
+            if (pos.X >= size.Width || pos.Y >= size.Height)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static IEnumerable<T> ToSequence<T>(this T[,] @this)
         { return @this.AllPoints().Select(point => @this.Get(point)); }
         

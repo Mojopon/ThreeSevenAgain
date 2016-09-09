@@ -11,17 +11,18 @@ public class DisplayGameBoard : MonoBehaviour
     private GameBoard _gameboard;
     private NumberBlock[,] _gameboardObjects = null;
 
-    void Start()
+    void Awake()
     {
         _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
-        _gameboard.SetTetrominoFactory(new TetrominoFactory());
+        _gameboard.StartGame();
+    }
 
+    void Start()
+    {
         _gameboard.GameBoardObservable
-                  .Skip(1)
                   .Subscribe(events => UpdateGameBoardObjects(events))
                   .AddTo(gameObject);
 
-        _gameboard.StartGame();
         _gameboard.AddNextTetromino();
     }
 
@@ -45,7 +46,7 @@ public class DisplayGameBoard : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Space))
         {
-            _gameboard.Place();
+            _gameboard.DropAllBlocks();
         }
     }
 
@@ -70,5 +71,7 @@ public class DisplayGameBoard : MonoBehaviour
         {
             _gameboard.AddNextTetromino();
         }
+
+        Debug.Log(_gameboard);
     }
 }

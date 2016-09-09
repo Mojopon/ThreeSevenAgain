@@ -23,6 +23,20 @@ namespace ThreeSeven.Model
             }
         }
 
+        public bool[,] IsEmptyCell
+        {
+            get
+            {
+                var cellsEmptyList = new bool[Size.Width, Size.Height];
+                Cells.ForEach((point, cell) =>
+                {
+                    cellsEmptyList[point.X, point.Y] = cell.IsNull;
+                });
+
+                return cellsEmptyList;
+            }
+        }
+
         public CellBoard(Size<int> size)
         {
             Size = size;

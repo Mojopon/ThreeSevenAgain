@@ -22,4 +22,29 @@ public class CellBoardTest
         Assert.AreEqual(cellsClone.GetLength(0), width);
         Assert.AreEqual(cellsClone.GetLength(1), height);
     }
+
+    [Test]
+    public void Returns_True_When_the_Cell_is_Empty()
+    {
+        var width = 7;
+        var height = 14;
+
+        var cellboard = new CellBoard(new Size<int> { Width = width, Height = height });
+
+        cellboard.Cells.ForEach((point, cell) =>
+        {
+            Assert.IsTrue(cell.IsNull);
+        });
+
+        bool[,] cellsEmptyList = cellboard.IsEmptyCell;
+
+        cellsEmptyList.ForEach((point, cell) =>
+        {
+            Assert.IsTrue(cell);
+        });
+
+        cellboard.Cells[2, 2].Set(Block.Create(ThreeSevenBlock.One));
+        Assert.IsFalse(cellboard.Cells[2, 2].IsNull);
+        Assert.IsFalse(cellboard.IsEmptyCell[2, 2]);
+    }
 }

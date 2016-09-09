@@ -12,6 +12,11 @@ namespace ThreeSeven.Model
             get { return new Point<T> { X = Y, Y = X }; }
         }
 
+        public static Point<int> At(int x, int y)
+        {
+            return new Point<int>() { X = x, Y = y };
+        }
+
         public override bool Equals(object item)
         {
             return X.Equals(((Point<T>)item).X) &&

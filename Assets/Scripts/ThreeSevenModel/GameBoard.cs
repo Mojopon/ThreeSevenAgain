@@ -152,7 +152,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
         return moveSucceed;
     }
 
-    public void Place()
+    private void Place()
     {
         if(CanPlaceCurrentTetromino())
         {
@@ -160,6 +160,61 @@ public class GameBoard : CellBoard, IGameBoardObservable
             UpdateGameBoard();
             //PrepareNextTetromino();
         }
+    }
+
+    public void DropAllBlocks()
+    {
+        var afterObjectsDroppedPositions = GetPositionsToDropObjects();
+
+        afterObjectsDroppedPositions.ForEach((source, destination) =>
+        {
+            if(!source.Equals(destination))
+            {
+                Cells.Swap(source, destination);
+            }
+        });
+
+        UpdateGameBoard();
+    }
+    
+    
+    private Point<int>[,] GetPositionsToDropObjects()
+    {
+        bool[,] isEmptyCell = IsEmptyCell;
+
+        Point<int>[,] cellObjectMovement = new Point<int>[Size.Width,Size.Height];
+
+        for(int y = Size.Height - 1; y >= 0; y--)
+        {
+            for(int x = 0; x < Size.Width; x++)
+            {
+                cellObjectMovement[x, y] = Point<int>.At(x, y);
+                if (isEmptyCell[x, y]) continue;
+
+                int i = 0;
+                int movement = 0;
+                while(true)
+                {
+                    i++;
+
+                    if (isEmptyCell.IsOutOfRange(Point<int>.At(x, y + i)) ||
+                       !isEmptyCell[x, y + i])
+                    {
+                        break;
+                    }
+
+                    movement++;
+                }
+                var target = Point<int>.At(x, y + movement);
+
+                Debug.Log("Move " + Point<int>.At(x, y) + " to " + target);
+
+                cellObjectMovement[x, y] = target;
+                isEmptyCell.Swap(Point<int>.At(x, y), target);
+            }
+        }
+
+        return cellObjectMovement;
     }
 
     private bool MoveCurrentTetrominoTo(Point<int> newPosition)

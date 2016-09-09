@@ -233,6 +233,8 @@ public class GameBoardTest
         Assert.IsTrue(gameBoard.MoveDown());
         Assert.AreEqual(firstTetrominoPos.Add(0, 4), currentTetromino.Position);
         Assert.IsFalse(gameBoard.MoveDown());
+
+        //Debug.Log(gameBoard);
     }
 
     [Test]
