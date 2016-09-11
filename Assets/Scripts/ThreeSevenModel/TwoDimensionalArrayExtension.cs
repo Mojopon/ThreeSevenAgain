@@ -13,7 +13,8 @@ namespace ThreeSeven.Model
                    from y in Enumerable.Range(0, @this.GetLength(1))
                    select new Point<int> { X = x, Y = y };
         }
-        
+
+
         public static T Get<T>(this T[,] @this, Point<int> point)
         { return @this[point.X, point.Y]; }
 
@@ -66,6 +67,11 @@ namespace ThreeSeven.Model
         
         public static void ForEach<T>(this T[,] @this, Action<Point<int>, T> action)
         { @this.AllPoints().ForEach(point => action(point, @this.Get(point))); }
+
+        // this method is needed to process drop blocks
+        public static void ForEachFromBottomToTop<T>(this T[,] @this, Action<Point<int>, T> action)
+        { @this.AllPoints().Reverse().ForEach(point => action(point, @this.Get(point))); }
+        
 
         public static void Swap<T>(this T[,] @this, Point<int> from, Point<int> to)
         {

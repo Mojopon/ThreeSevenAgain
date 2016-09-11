@@ -166,12 +166,9 @@ public class GameBoard : CellBoard, IGameBoardObservable
     {
         var afterObjectsDroppedPositions = GetPositionsToDropObjects();
 
-        afterObjectsDroppedPositions.ForEach((source, destination) =>
+        afterObjectsDroppedPositions.ForEachFromBottomToTop((source, destination) =>
         {
-            if(!source.Equals(destination))
-            {
-                Cells.Swap(source, destination);
-            }
+            Cells.Swap(source, destination);
         });
 
         UpdateGameBoard();
