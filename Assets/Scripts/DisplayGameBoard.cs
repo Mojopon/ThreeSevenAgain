@@ -6,6 +6,9 @@ using UniRx;
 public class DisplayGameBoard : MonoBehaviour
 {
     [SerializeField]
+    private GameBoardView _GameBoardView;
+
+    [SerializeField]
     private NumberBlock _BlockPrefab;
 
     private GameBoard _gameboard;
@@ -19,9 +22,13 @@ public class DisplayGameBoard : MonoBehaviour
 
     void Start()
     {
+        _GameBoardView.SetGameBoard(_gameboard);
+
+        /*
         _gameboard.GameBoardObservable
                   .Subscribe(events => UpdateGameBoardObjects(events))
                   .AddTo(gameObject);
+                  */
 
         _gameboard.AddNextTetromino();
     }
@@ -50,6 +57,7 @@ public class DisplayGameBoard : MonoBehaviour
         }
     }
 
+    /*
     void UpdateGameBoardObjects(GameBoardEvents events)
     {
         if (_gameboardObjects == null)
@@ -74,4 +82,5 @@ public class DisplayGameBoard : MonoBehaviour
 
         Debug.Log(_gameboard);
     }
+    */
 }

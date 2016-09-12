@@ -19,16 +19,22 @@ public class GameBoardEvents
     public bool IsReady { get { return Cells != null; } }
 
     public Cell[,] Cells = null;
-    public CurrentTetrominoEvent TetrominoEvent = null;
+    public CurrentTetrominoEvent TetrominoEvent       = null;
+    public PlacedTetrominoEvent  PlacedTetrominoEvent = null;
 }
 
 public class CurrentTetrominoEvent
 {
-    public bool IsNotNull { get { return CurrentTetromino != null; } }
+    public bool HasEvent { get { return CurrentTetromino != null; } }
 
     public Tetromino    CurrentTetromino = null;
     public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
     public IBlock[]     CurrentTetrominoBlocks    { get { return CurrentTetromino.Blocks; } }
+}
+
+public class PlacedTetrominoEvent
+{
+    public Tetromino PlacedTetromino;
 }
 
 public class GameBoard : CellBoard, IGameBoardObservable
@@ -112,11 +118,19 @@ public class GameBoard : CellBoard, IGameBoardObservable
     }
 
     private GameBoardEvents _gameboardEvents = null;
+    private Tetromino _placedTetromino = null;
     // UpdateGameBoard will notify that the board is updated to all its subscribers
     private void UpdateGameBoard()
     {
         _gameboardEvents = new GameBoardEvents();
         _gameboardEvents.Cells = this.CellsClone;
+
+        if(_placedTetromino != null)
+        {
+            _gameboardEvents.PlacedTetrominoEvent = new PlacedTetrominoEvent(){ PlacedTetromino = _placedTetromino };
+            _placedTetromino = null;
+        }
+
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
 
         {
@@ -132,16 +146,22 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
     public bool MoveLeft()
     {
+        if (_currentTetromino == null) return false;
+
         return MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X - 1, Y = _currentTetromino.Position.Y });
     }
 
     public bool MoveRight()
     {
+        if (_currentTetromino == null) return false;
+
         return MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X + 1, Y = _currentTetromino.Position.Y });
     }
 
     public bool MoveDown()
     {
+        if (_currentTetromino == null) return false;
+
         bool moveSucceed = MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X, Y = _currentTetromino.Position.Y + 1 });
 
         if (!moveSucceed)
@@ -175,6 +195,10 @@ public class GameBoard : CellBoard, IGameBoardObservable
     }
     
     
+    // this method returns an array which is same sized for the Cells
+    // and stores Point used for blocks where to move
+    // for example if (5, 10) in the array has a Point(5, 12)
+    // meand the block at (5, 10) will move to (5, 12) 
     private Point<int>[,] GetPositionsToDropObjects()
     {
         bool[,] isEmptyCell = IsEmptyCell;
@@ -303,6 +327,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
         if (!CanPlaceCurrentTetromino()) return false;
 
         _currentTetromino.Foreach((point, block) => Cells[point.X, point.Y].Set(block));
+
+        _placedTetromino = _currentTetromino;
         _currentTetromino = null;
         return true;
     }
