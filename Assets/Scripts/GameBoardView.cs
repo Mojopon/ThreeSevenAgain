@@ -37,6 +37,14 @@ public class GameBoardView : MonoBehaviour
 
         _grid = new NumberBlock[gameboard.Size.Width, gameboard.Size.Height];
 
+        _grid.ForEach((point, block) =>
+        {
+            var blockObject = Instantiate(_BlockPrefab, new Vector3(point.X, -point.Y), Quaternion.identity) as NumberBlock;
+            _grid[point.X, point.Y] = blockObject;
+
+            blockObject.gameObject.SetActive(false);
+        });
+
         gameboard.GameBoardObservable
                  .Subscribe(events => UpdateGameboardGrid(events))
                  .AddTo(gameObject);
@@ -61,6 +69,12 @@ public class GameBoardView : MonoBehaviour
 
             UpdateCurrentTetrominoObjectsPosition();
         }
+        else if(!gameBoardEvents.TetrominoEvent.HasEvent && _currentTetromino != null)
+        {
+            DestroyCurrentTetrominoObjects();
+        }
+
+        UpdateGrid(gameBoardEvents.Cells);
     }
 
     private NumberBlock InstantiateBlock(IBlock block)
@@ -79,6 +93,35 @@ public class GameBoardView : MonoBehaviour
         _currentTetromino.Foreach((count, point, block) =>
         {
             blocks[count].transform.position = new Vector3(point.X, -point.Y);
+        });
+    }
+
+    private void DestroyCurrentTetrominoObjects()
+    {
+        var blocks = _tetrominoObjectsDictionary[_currentTetromino];
+
+        _currentTetromino.Foreach((count, point, block) =>
+        {
+            Destroy(blocks[count].gameObject);
+        });
+
+        _tetrominoObjectsDictionary.Remove(_currentTetromino);
+        _currentTetromino = null;
+    }
+
+    private void UpdateGrid(Cell[,] cells)
+    {
+        cells.ForEach((point, cell) =>
+        {
+            if (!cell.IsNull)
+            {
+                _grid[point.X, point.Y].gameObject.SetActive(true);
+                _grid[point.X, point.Y].SetNumber(cell.Block.GetNumber());
+            }
+            else
+            {
+                _grid[point.X, point.Y].gameObject.SetActive(false);
+            }
         });
     }
 
