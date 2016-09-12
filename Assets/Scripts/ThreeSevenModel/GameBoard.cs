@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 public enum GameBoardState
 {
+    Default,
     Paused,
     BeforeAddTetromino,
     OnControlTetromino,
@@ -39,6 +40,8 @@ public class PlacedTetrominoEvent
 
 public class GameBoard : CellBoard, IGameBoardObservable
 {
+    public IObservable<GameBoardState> StateObservable { get { return _stateReactiveProperty.AsObservable(); } }
+    private ReactiveProperty<GameBoardState> _stateReactiveProperty = new ReactiveProperty<GameBoardState>(GameBoardState.Default);
 
     public  IObservable<GameBoardEvents> GameBoardObservable { get { return _gameBoardStream.AsObservable(); } }
     private ISubject<GameBoardEvents> _gameBoardStream = new BehaviorSubject<GameBoardEvents>(null);
@@ -83,6 +86,19 @@ public class GameBoard : CellBoard, IGameBoardObservable
         PrepareNextTetromino();
     }
 
+    public void GoNextState()
+    {
+        switch(_stateReactiveProperty.Value)
+        {
+            case GameBoardState.BeforeAddTetromino:
+                AddNextTetromino();
+                break;
+            case GameBoardState.BeforeDropBlocks:
+                DropAllBlocks();
+                break;
+        }
+    }
+
     public void AddNextTetromino()
     {
         //place NextTetromino on Center
@@ -92,6 +108,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
         PrepareNextTetromino();
         UpdateGameBoard();
+
+        _stateReactiveProperty.Value = GameBoardState.OnControlTetromino;
     }
 
     private void PrepareNextTetromino()
@@ -180,6 +198,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
             UpdateGameBoard();
             //PrepareNextTetromino();
         }
+
+        _stateReactiveProperty.Value = GameBoardState.BeforeDropBlocks;
     }
 
     public void DropAllBlocks()
@@ -192,6 +212,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
         });
 
         UpdateGameBoard();
+
+        _stateReactiveProperty.Value = GameBoardState.BeforeAddTetromino;
     }
     
     
@@ -228,7 +250,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
                 }
                 var target = Point<int>.At(x, y + movement);
 
-                Debug.Log("Move " + Point<int>.At(x, y) + " to " + target);
+                //Debug.Log("Move " + Point<int>.At(x, y) + " to " + target);
 
                 cellObjectMovement[x, y] = target;
                 isEmptyCell.Swap(Point<int>.At(x, y), target);
