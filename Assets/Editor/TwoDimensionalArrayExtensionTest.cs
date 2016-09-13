@@ -58,11 +58,11 @@ public class TwoDimensionalArrayExtensionTest
         int[,] array = new int[width, height];
 
         array[0, 0] = 5;
-        var movement = new TwoDimensionalMovement()
-        {
-            source      = Point<int>.At(0, 0),
-            destination = Point<int>.At(0, 1),
-        };
+
+        var source = Point<int>.At(0, 0);
+        var destination = Point<int>.At(0, 1);
+
+        var movement = new TwoDimensionalMovement(source, destination);
 
         array.Swap(movement);
         Assert.AreEqual(0, array.Get(Point<int>.At(0, 0)));

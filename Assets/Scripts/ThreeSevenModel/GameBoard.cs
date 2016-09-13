@@ -4,6 +4,7 @@ using System;
 using UniRx;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public enum GameBoardState
 {
@@ -22,6 +23,7 @@ public class GameBoardEvents
     public Cell[,] Cells = null;
     public CurrentTetrominoEvent TetrominoEvent       = null;
     public PlacedTetrominoEvent  PlacedTetrominoEvent = null;
+    public BlockMoveEvent        BlockMoveEvent       = null;
 }
 
 public class CurrentTetrominoEvent
@@ -36,6 +38,12 @@ public class CurrentTetrominoEvent
 public class PlacedTetrominoEvent
 {
     public Tetromino PlacedTetromino;
+}
+
+public class BlockMoveEvent
+{
+    public bool HasEvent { get { return movements != null; } }
+    public TwoDimensionalMovement[] movements = null;
 }
 
 public class GameBoard : CellBoard, IGameBoardObservable
@@ -137,7 +145,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
     private GameBoardEvents _gameboardEvents = null;
     private Tetromino       _placedTetromino = null;
-    private Point<int>[,]    _blockMovements  = null;
+    private TwoDimensionalMovement[]    _blockMovements  = null;
     // UpdateGameBoard will notify that the board is updated to all its subscribers
     private void UpdateGameBoard()
     {
@@ -151,10 +159,10 @@ public class GameBoard : CellBoard, IGameBoardObservable
         }
 
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
+        { CurrentTetromino = this._currentTetromino };
 
-        {
-            CurrentTetromino = this._currentTetromino,
-        };
+        _gameboardEvents.BlockMoveEvent = new BlockMoveEvent()
+        { movements = _blockMovements };
 
         if (_gameboardEvents.Cells != null)
         {
@@ -206,10 +214,9 @@ public class GameBoard : CellBoard, IGameBoardObservable
     public void DropAllBlocks()
     {
         _blockMovements = GetPositionsToDropObjects();
-
-        _blockMovements.ForEachFromBottomToTop((source, destination) =>
+        _blockMovements.ForEach((movement) =>
         {
-            Cells.Swap(source, destination);
+            Cells.Swap(movement);
         });
 
         UpdateGameBoard();
@@ -222,17 +229,16 @@ public class GameBoard : CellBoard, IGameBoardObservable
     // and stores Point used for blocks where to move
     // for example if (5, 10) in the array has a Point(5, 12)
     // meand the block at (5, 10) will move to (5, 12) 
-    private Point<int>[,] GetPositionsToDropObjects()
+    private TwoDimensionalMovement[] GetPositionsToDropObjects()
     {
         bool[,] isEmptyCell = IsEmptyCell;
 
-        Point<int>[,] cellObjectMovement = new Point<int>[Size.Width,Size.Height];
+        TwoDimensionalMovements objectMovements = new TwoDimensionalMovements(Size);
 
         for(int y = Size.Height - 1; y >= 0; y--)
         {
             for(int x = 0; x < Size.Width; x++)
             {
-                cellObjectMovement[x, y] = Point<int>.At(x, y);
                 if (isEmptyCell[x, y]) continue;
 
                 int i = 0;
@@ -253,12 +259,12 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
                 //Debug.Log("Move " + Point<int>.At(x, y) + " to " + target);
 
-                cellObjectMovement[x, y] = target;
-                isEmptyCell.Swap(Point<int>.At(x, y), target);
+                objectMovements.SetMovement(Point<int>.At(x, y), target);
+                isEmptyCell.Swap(objectMovements[x, y]);
             }
         }
 
-        return cellObjectMovement;
+        return objectMovements.ToArray();
     }
 
     private bool MoveCurrentTetrominoTo(Point<int> newPosition)

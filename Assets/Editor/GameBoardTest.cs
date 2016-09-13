@@ -329,20 +329,71 @@ public class GameBoardTest
     [Test]
     public void Drop_All_Blocks_Above_Ground()
     {
-        Tetromino tetromino = null;
+        BlockMoveEvent blockMoveEvent = null;
         gameBoard.GameBoardObservable
-                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
-                 .Select(x => x.TetrominoEvent.CurrentTetromino)
-                 .Subscribe(x => tetromino = x)
+                 .Where(x => x != null && x.BlockMoveEvent.HasEvent)
+                 .Select(x => x.BlockMoveEvent)
+                 .Subscribe(x => blockMoveEvent = x)
                  .AddTo(subscriptions);
 
         gameBoard.StartGame();
 
-        
-        var cellsClone = gameBoard.CellsClone;
-        cellsClone[3, 1].Set(Block.Create(ThreeSevenBlock.Seven));
-        cellsClone[3, 2].Set(Block.Create(ThreeSevenBlock.Five));
-        cellsClone[4, 1].Set(Block.Create(ThreeSevenBlock.Five));
-        gameBoard.CellsClone = cellsClone;
+        Cell[,] cells;
+        cells = gameBoard.CellsClone;
+        cells[3, 1].Set(Block.Create(ThreeSevenBlock.Seven));
+        cells[3, 2].Set(Block.Create(ThreeSevenBlock.Five));
+        cells[4, 1].Set(Block.Create(ThreeSevenBlock.Three));
+        gameBoard.CellsClone = cells;
+
+        Assert.IsNull(blockMoveEvent);
+
+        gameBoard.DropAllBlocks();
+
+        TwoDimensionalMovement[] movements;
+        movements = blockMoveEvent.movements;
+        Assert.AreEqual(movements.Length, 3);
+        Assert.AreEqual(Point<int>.At(4, 1),  movements[0].source);
+        Assert.AreEqual(Point<int>.At(4, 13), movements[0].destination);
+        Assert.AreEqual(Point<int>.At(3, 2),  movements[1].source);
+        Assert.AreEqual(Point<int>.At(3, 13), movements[1].destination);
+        Assert.AreEqual(Point<int>.At(3, 1),  movements[2].source);
+        Assert.AreEqual(Point<int>.At(3, 12), movements[2].destination);
+
+        cells = gameBoard.CellsClone;
+
+        Assert.AreEqual(7, cells[3, 12].Block.GetNumber());
+        Assert.AreEqual(5, cells[3, 13].Block.GetNumber());
+        Assert.AreEqual(3, cells[4, 13].Block.GetNumber());
+
+        cells[3, 1].Set(Block.Create(ThreeSevenBlock.One));
+        cells[3, 2].Set(Block.Create(ThreeSevenBlock.Six));
+        cells[4, 1].Set(Block.Create(ThreeSevenBlock.Six));
+        cells[4, 2].Set(Block.Create(ThreeSevenBlock.Seven));
+        gameBoard.CellsClone = cells;
+
+        gameBoard.DropAllBlocks();
+
+        Assert.IsNotNull(blockMoveEvent);
+
+        cells = gameBoard.CellsClone;
+
+        Assert.AreEqual(7, cells[3, 12].Block.GetNumber());
+        Assert.AreEqual(5, cells[3, 13].Block.GetNumber());
+        Assert.AreEqual(3, cells[4, 13].Block.GetNumber());
+        Assert.AreEqual(1, cells[3, 10].Block.GetNumber());
+        Assert.AreEqual(6, cells[3, 11].Block.GetNumber());
+        Assert.AreEqual(6, cells[4, 11].Block.GetNumber());
+        Assert.AreEqual(7, cells[4, 12].Block.GetNumber());
+
+        movements = blockMoveEvent.movements;
+        Assert.AreEqual(movements.Length, 4);
+        Assert.AreEqual(Point<int>.At(4, 2),  movements[0].source);
+        Assert.AreEqual(Point<int>.At(4, 12), movements[0].destination);
+        Assert.AreEqual(Point<int>.At(4, 1),  movements[1].source);
+        Assert.AreEqual(Point<int>.At(4, 11), movements[1].destination);
+        Assert.AreEqual(Point<int>.At(3, 2),  movements[2].source);
+        Assert.AreEqual(Point<int>.At(3, 11), movements[2].destination);
+        Assert.AreEqual(Point<int>.At(3, 1),  movements[3].source);
+        Assert.AreEqual(Point<int>.At(3, 10), movements[3].destination);
     }
 }

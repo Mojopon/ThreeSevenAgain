@@ -16,6 +16,11 @@ public struct TwoDimensionalMovement
 
     // sourceとDestinationが同じでない場合は移動がある＝HasMovementでTrueを返す
     public bool HasMovement { get { return !source.Equals(destination); } }
+
+    public override string ToString()
+    {
+        return string.Format("from ({0}, {1}) to ({2}, {3})", source.X, source.Y, destination.X, destination.Y);
+    }
 }
 
 public class TwoDimensionalMovements
@@ -39,7 +44,7 @@ public class TwoDimensionalMovements
         }
     }
 
-    public void SetDestination(Point<int> source, Point<int> destination)
+    public void SetMovement(Point<int> source, Point<int> destination)
     {
         this[source.X, source.Y] = new TwoDimensionalMovement(source, destination);
     }
@@ -47,7 +52,7 @@ public class TwoDimensionalMovements
     public TwoDimensionalMovement[] ToArray()
     {
         List<TwoDimensionalMovement> movementsList = new List<TwoDimensionalMovement>();
-        movements.ForEach((point, cell) =>
+        movements.ForEachFromBottomToTop((point, cell) =>
         {
             if(cell.HasMovement)
             {
