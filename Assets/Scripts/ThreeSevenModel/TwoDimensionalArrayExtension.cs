@@ -82,6 +82,11 @@ namespace ThreeSeven.Model
             @this.Set(from, temp);
         }
 
+        public static void Swap<T>(this T[,] @this, TwoDimensionalMovement movement)
+        {
+            @this.Swap(movement.source, movement.destination);
+        }
+
         public static bool IsOutOfRange<T>(this T[,] @this, Point<int> pos)
         {
             if (0 > pos.X || 0 > pos.Y)

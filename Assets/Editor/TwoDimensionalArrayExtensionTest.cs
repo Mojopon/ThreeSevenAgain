@@ -49,4 +49,23 @@ public class TwoDimensionalArrayExtensionTest
         Assert.AreEqual(5, array.Get(Point<int>.At(0, 1)));
     }
 
+    [Test]
+    public void Can_Use_Two_Dimensional_Movement()
+    {
+        int width = 4;
+        int height = 5;
+
+        int[,] array = new int[width, height];
+
+        array[0, 0] = 5;
+        var movement = new TwoDimensionalMovement()
+        {
+            source      = Point<int>.At(0, 0),
+            destination = Point<int>.At(0, 1),
+        };
+
+        array.Swap(movement);
+        Assert.AreEqual(0, array.Get(Point<int>.At(0, 0)));
+        Assert.AreEqual(5, array.Get(Point<int>.At(0, 1)));
+    }
 }

@@ -136,7 +136,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
     }
 
     private GameBoardEvents _gameboardEvents = null;
-    private Tetromino _placedTetromino = null;
+    private Tetromino       _placedTetromino = null;
+    private Point<int>[,]    _blockMovements  = null;
     // UpdateGameBoard will notify that the board is updated to all its subscribers
     private void UpdateGameBoard()
     {
@@ -204,9 +205,9 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
     public void DropAllBlocks()
     {
-        var afterObjectsDroppedPositions = GetPositionsToDropObjects();
+        _blockMovements = GetPositionsToDropObjects();
 
-        afterObjectsDroppedPositions.ForEachFromBottomToTop((source, destination) =>
+        _blockMovements.ForEachFromBottomToTop((source, destination) =>
         {
             Cells.Swap(source, destination);
         });

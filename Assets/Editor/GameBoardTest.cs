@@ -325,4 +325,24 @@ public class GameBoardTest
         Assert.IsFalse(gameBoard.MoveDown());
         Assert.IsTrue(tetrominoCleared);
     }
+
+    [Test]
+    public void Drop_All_Blocks_Above_Ground()
+    {
+        Tetromino tetromino = null;
+        gameBoard.GameBoardObservable
+                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
+                 .Select(x => x.TetrominoEvent.CurrentTetromino)
+                 .Subscribe(x => tetromino = x)
+                 .AddTo(subscriptions);
+
+        gameBoard.StartGame();
+
+        
+        var cellsClone = gameBoard.CellsClone;
+        cellsClone[3, 1].Set(Block.Create(ThreeSevenBlock.Seven));
+        cellsClone[3, 2].Set(Block.Create(ThreeSevenBlock.Five));
+        cellsClone[4, 1].Set(Block.Create(ThreeSevenBlock.Five));
+        gameBoard.CellsClone = cellsClone;
+    }
 }
