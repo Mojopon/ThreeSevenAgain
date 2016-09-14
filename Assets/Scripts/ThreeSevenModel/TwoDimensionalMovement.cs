@@ -23,11 +23,12 @@ public struct TwoDimensionalMovement
     }
 }
 
-public class TwoDimensionalMovements
+/*
+public class TwoDimensionalMovementsGrid
 {
     private TwoDimensionalMovement[,] movements; 
 
-    public TwoDimensionalMovements(Size<int> size)
+    public TwoDimensionalMovementsGrid(Size<int> size)
     {
         movements = new TwoDimensionalMovement[size.Width, size.Height];
     }
@@ -63,3 +64,4 @@ public class TwoDimensionalMovements
         return movementsList.ToArray();
     }
 }
+*/

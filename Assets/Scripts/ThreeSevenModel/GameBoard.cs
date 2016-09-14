@@ -233,7 +233,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
     {
         bool[,] isEmptyCell = IsEmptyCell;
 
-        TwoDimensionalMovements objectMovements = new TwoDimensionalMovements(Size);
+        List<TwoDimensionalMovement> objectMovements = new List<TwoDimensionalMovement>(); 
+        //TwoDimensionalMovements objectMovements = new TwoDimensionalMovements(Size);
 
         for(int y = Size.Height - 1; y >= 0; y--)
         {
@@ -242,25 +243,27 @@ public class GameBoard : CellBoard, IGameBoardObservable
                 if (isEmptyCell[x, y]) continue;
 
                 int i = 0;
-                int movement = 0;
+                int verticalMove = 0;
                 while(true)
                 {
                     i++;
 
+                    // add movement when the space below the block is empty to know
+                    // how many times drops the block
                     if (isEmptyCell.IsOutOfRange(Point<int>.At(x, y + i)) ||
                        !isEmptyCell[x, y + i])
                     {
                         break;
                     }
 
-                    movement++;
+                    verticalMove++;
                 }
-                var target = Point<int>.At(x, y + movement);
 
-                //Debug.Log("Move " + Point<int>.At(x, y) + " to " + target);
+                if (verticalMove == 0) continue;
 
-                objectMovements.SetMovement(Point<int>.At(x, y), target);
-                isEmptyCell.Swap(objectMovements[x, y]);
+                var movement = new TwoDimensionalMovement(Point<int>.At(x, y), Point<int>.At(x, y + verticalMove));
+                objectMovements.Add(movement);
+                isEmptyCell.Swap(movement);
             }
         }
 

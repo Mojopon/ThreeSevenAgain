@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System;
 using UniRx;
 using UnityEngine;
+using System.Linq;
 
 [TestFixture]
 public class GameBoardTest
@@ -352,12 +353,24 @@ public class GameBoardTest
         TwoDimensionalMovement[] movements;
         movements = blockMoveEvent.movements;
         Assert.AreEqual(movements.Length, 3);
-        Assert.AreEqual(Point<int>.At(4, 1),  movements[0].source);
-        Assert.AreEqual(Point<int>.At(4, 13), movements[0].destination);
-        Assert.AreEqual(Point<int>.At(3, 2),  movements[1].source);
-        Assert.AreEqual(Point<int>.At(3, 13), movements[1].destination);
-        Assert.AreEqual(Point<int>.At(3, 1),  movements[2].source);
-        Assert.AreEqual(Point<int>.At(3, 12), movements[2].destination);
+
+        // block at (4,1) should be dropped to (4,13) in this pattern
+        // (3,2) to (3,13) 
+        // (3,1) to (3,12) 
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(4, 1)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(4, 13)));
+
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(3, 2)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(3, 13)));
+
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(3, 1)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(3, 12)));
 
         cells = gameBoard.CellsClone;
 
@@ -387,13 +400,30 @@ public class GameBoardTest
 
         movements = blockMoveEvent.movements;
         Assert.AreEqual(movements.Length, 4);
-        Assert.AreEqual(Point<int>.At(4, 2),  movements[0].source);
-        Assert.AreEqual(Point<int>.At(4, 12), movements[0].destination);
-        Assert.AreEqual(Point<int>.At(4, 1),  movements[1].source);
-        Assert.AreEqual(Point<int>.At(4, 11), movements[1].destination);
-        Assert.AreEqual(Point<int>.At(3, 2),  movements[2].source);
-        Assert.AreEqual(Point<int>.At(3, 11), movements[2].destination);
-        Assert.AreEqual(Point<int>.At(3, 1),  movements[3].source);
-        Assert.AreEqual(Point<int>.At(3, 10), movements[3].destination);
+
+        // block at (4,2) should be dropped to (4,12) in this pattern
+        // (4,1) to (4,11) 
+        // (3,2) to (3,11) 
+        // (3,1) to (3,10) 
+
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(4, 2)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(4, 12)));
+
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(4, 1)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(4, 11)));
+
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(3, 2)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(3, 11)));
+
+        Assert.IsTrue(movements.Where(x => x.source.Equals(Point<int>.At(3, 1)))
+                               .Select(x => x)
+                               .FirstOrDefault()
+                               .destination.Equals(Point<int>.At(3, 10)));
     }
 }
