@@ -2,11 +2,12 @@
 using System.Collections;
 using ThreeSeven.Model;
 using UniRx;
+using System.Linq;
 
 public class GameBoardPresenter : MonoBehaviour
 {
     [SerializeField]
-    private GameBoardView _GameBoardView;
+    private SceneGameBoard _SceneGameBoard;
 
     private GameBoard _gameboard;
 
@@ -23,14 +24,38 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
+        
+        _gameboard.GameBoardObservable
+                  .Where (x => x != null)
+                  .Select(x => x.TetrominoEvent)
+                  .Where (x => x.NewTetrominoAdded)
+                  .Select(x => x.CurrentTetromino.Blocks)
+                  .Subscribe(x =>
+                  {
+                      _SceneGameBoard.AddTetromino(x.Select(block => block.Type).ToArray());
+                  });
+
+        _gameboard.GameBoardObservable
+                  .Where (x => x != null && x.TetrominoEvent.HasEvent)
+                  .Select(x => x.TetrominoEvent.CurrentTetromino)
+                  .Subscribe(x =>
+                  {
+                      _SceneGameBoard.MoveTetromino(x.Positions);
+                  });
+
+
+
         _gameboard.StartGame();
     }
 
     void Start()
     {
-        _GameBoardView.SetGameBoard(_gameboard);
-
         _gameboard.AddNextTetromino();
+    }
+
+    private void SetGameBoardEventToSceneGameBoard(GameBoardEvents gameBoardEvents)
+    {
+        
     }
 
     void Update()

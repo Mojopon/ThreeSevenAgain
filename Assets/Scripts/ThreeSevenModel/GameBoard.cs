@@ -22,7 +22,7 @@ public class GameBoardEvents
 
     public Cell[,] Cells = null;
     public CurrentTetrominoEvent TetrominoEvent       = null;
-    public PlacedTetrominoEvent  PlacedTetrominoEvent = null;
+    public PlacedBlockEvent      PlacedBlockEvent     = null;
     public BlockMoveEvent        BlockMoveEvent       = null;
 }
 
@@ -36,9 +36,15 @@ public class CurrentTetrominoEvent
     public IBlock[]     CurrentTetrominoBlocks    { get { return CurrentTetromino.Blocks; } }
 }
 
-public class PlacedTetrominoEvent
+public struct PlacedBlock
 {
-    public Tetromino PlacedTetromino;
+    public IBlock block;
+    public Point<int> point;
+}
+
+public class PlacedBlockEvent
+{
+    public PlacedBlock[] placedBlocks;
 }
 
 public class BlockMoveEvent
@@ -145,19 +151,19 @@ public class GameBoard : CellBoard, IGameBoardObservable
         UpdateGameBoard();
     }
 
-    private GameBoardEvents _gameboardEvents = null;
-    private Tetromino       _placedTetromino = null;
-    private TwoDimensionalMovement[]    _blockMovements  = null;
+    private GameBoardEvents             _gameboardEvents  = null;
+    private PlacedBlockEvent            _placedBlockEvent = null;
+    private TwoDimensionalMovement[]    _blockMovements   = null;
     // UpdateGameBoard will notify that the board is updated to all its subscribers
     private void UpdateGameBoard()
     {
         _gameboardEvents = new GameBoardEvents();
         _gameboardEvents.Cells = this.CellsClone;
 
-        if(_placedTetromino != null)
+        if(_placedBlockEvent != null)
         {
-            _gameboardEvents.PlacedTetrominoEvent = new PlacedTetrominoEvent(){ PlacedTetromino = _placedTetromino };
-            _placedTetromino = null;
+            _gameboardEvents.PlacedBlockEvent = _placedBlockEvent;
+            _placedBlockEvent = null;
         }
 
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
@@ -362,9 +368,15 @@ public class GameBoard : CellBoard, IGameBoardObservable
     {
         if (!CanPlaceCurrentTetromino()) return false;
 
-        _currentTetromino.Foreach((point, block) => Cells[point.X, point.Y].Set(block));
+        var placedBlocks = new List<PlacedBlock>();
 
-        _placedTetromino = _currentTetromino;
+        _currentTetromino.Foreach((point, block) => 
+        {
+            Cells[point.X, point.Y].Set(block);
+            placedBlocks.Add(new PlacedBlock() { block = block, point = point });
+        });
+
+        _placedBlockEvent = new PlacedBlockEvent() { placedBlocks = placedBlocks.ToArray() };
         _currentTetromino = null;
         return true;
     }

@@ -323,8 +323,33 @@ public class GameBoardTest
                  .Subscribe(x => tetrominoCleared = true)
                  .AddTo(subscriptions);
 
+        PlacedBlockEvent placedBlockEvent = null;
+        gameBoard.GameBoardObservable
+                 .Where(x => x != null && x.PlacedBlockEvent != null)
+                 .Select(x => x.PlacedBlockEvent)
+                 .Subscribe(x => placedBlockEvent = x);
+
         Assert.IsFalse(gameBoard.MoveDown());
         Assert.IsTrue(tetrominoCleared);
+
+        Assert.IsNotNull(placedBlockEvent);
+
+        var placedBlocks = placedBlockEvent.placedBlocks;
+        Assert.AreEqual(4, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 13)))
+                                       .First()
+                                       .block.GetNumber());
+        
+        Assert.AreEqual(3, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 12)))
+                                       .First()
+                                       .block.GetNumber());
+
+        Assert.AreEqual(2, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 11)))
+                                       .First()
+                                       .block.GetNumber());
+
+        Assert.AreEqual(1, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 10)))
+                                       .First()
+                                       .block.GetNumber());
     }
 
     [Test]
