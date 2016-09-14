@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Collections;
 
+public enum ThreeSevenBlock
+{
+    None,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+}
+
+public interface IBlock
+{
+    ThreeSevenBlock Type { get; }
+
+    int GetNumber();
+}
+
 namespace ThreeSeven.Model
 {
-    public enum ThreeSevenBlock
-    {
-        None,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-    }
-
-    public interface IBlock
-    {
-        ThreeSevenBlock Type { get; }
-
-        int GetNumber();
-    }
 
     public class Block : IBlock
     {

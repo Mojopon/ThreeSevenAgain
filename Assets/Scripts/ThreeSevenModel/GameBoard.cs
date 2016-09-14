@@ -29,6 +29,7 @@ public class GameBoardEvents
 public class CurrentTetrominoEvent
 {
     public bool HasEvent { get { return CurrentTetromino != null; } }
+    public bool NewTetrominoAdded { get; set; }
 
     public Tetromino    CurrentTetromino = null;
     public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
@@ -55,8 +56,6 @@ public class GameBoard : CellBoard, IGameBoardObservable
     private ISubject<GameBoardEvents> _gameBoardStream = new BehaviorSubject<GameBoardEvents>(null);
 
     private Func<Tetromino> _createTetromino = new TetrominoFactory().Create;
-
-    private Tetromino _currentTetromino;
 
     public int NumberOfNextTetrominos = 1;
 
@@ -107,12 +106,15 @@ public class GameBoard : CellBoard, IGameBoardObservable
         }
     }
 
+    private Tetromino _currentTetromino;
+    private bool _newTetrominoAdded = false;
     public void AddNextTetromino()
     {
         //place NextTetromino on Center
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
         _currentTetromino = NextTetromino;
         _nextTetrominos.Remove(NextTetromino);
+        _newTetrominoAdded = true;
 
         PrepareNextTetromino();
         UpdateGameBoard();
@@ -159,7 +161,9 @@ public class GameBoard : CellBoard, IGameBoardObservable
         }
 
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
-        { CurrentTetromino = this._currentTetromino };
+        { CurrentTetromino  = this._currentTetromino,
+          NewTetrominoAdded = this._newTetrominoAdded};
+        _newTetrominoAdded = false;
 
         _gameboardEvents.BlockMoveEvent = new BlockMoveEvent()
         { movements = _blockMovements };

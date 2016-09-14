@@ -2,7 +2,7 @@
 using System.Collections;
 
 [RequireComponent(typeof(SpriteRenderer))]
-public class NumberBlock : MonoBehaviour
+public class SceneBlock : MonoBehaviour
 {
     [SerializeField]
     private Sprite[] _NumberSprites;
