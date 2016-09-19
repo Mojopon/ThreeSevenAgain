@@ -65,10 +65,8 @@ public class GameBoardPresenter : MonoBehaviour
                   .Select(x => x.BlockMoveEvent.movements)
                   .Subscribe(x =>
                   {
-                      foreach (var movement in x.OrderBy(y => y.source.Y))
+                      foreach (var movement in x.OrderByDescending(y => y.source.Y))
                           _SceneGameBoard.MoveBlock(movement.source, movement.destination);
-
-                      Debug.Log(_gameboard);
                   });
 
         _gameboard.StartGame();
@@ -77,11 +75,6 @@ public class GameBoardPresenter : MonoBehaviour
     void Start()
     {
         _gameboard.AddNextTetromino();
-    }
-
-    private void SetGameBoardEventToSceneGameBoard(GameBoardEvents gameBoardEvents)
-    {
-        
     }
 
     void Update()

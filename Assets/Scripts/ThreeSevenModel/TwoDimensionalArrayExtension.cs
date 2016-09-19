@@ -68,11 +68,6 @@ namespace ThreeSeven.Model
         public static void ForEach<T>(this T[,] @this, Action<Point<int>, T> action)
         { @this.AllPoints().ForEach(point => action(point, @this.Get(point))); }
 
-        // this method is needed to process drop blocks
-        public static void ForEachFromBottomToTop<T>(this T[,] @this, Action<Point<int>, T> action)
-        { @this.AllPoints().Reverse().ForEach(point => action(point, @this.Get(point))); }
-        
-
         public static void Swap<T>(this T[,] @this, Point<int> from, Point<int> to)
         {
             if (@this.IsOutOfRange(from) || @this.IsOutOfRange(to) || from.Equals(to)) return;

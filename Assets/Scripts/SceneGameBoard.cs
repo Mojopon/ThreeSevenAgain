@@ -81,7 +81,7 @@ public class SceneGameBoard : MonoBehaviour, ISceneGameBoard
     public void MoveBlock(Point<int> source, Point<int> destination)
     {
         if (_grid[source.X, source.Y] == null) return;
-        _grid[source.X, source.Y].transform.localPosition = new Vector3(destination.X, -destination.Y);
+        _grid[source.X, source.Y].MoveTo(new Vector3(destination.X, -destination.Y));
 
         _grid[destination.X, destination.Y] = _grid[source.X, source.Y];
         _grid[source.X, source.Y] = null;
