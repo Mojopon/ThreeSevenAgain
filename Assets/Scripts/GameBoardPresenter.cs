@@ -28,7 +28,7 @@ public class GameBoardPresenter : MonoBehaviour
         _gameboard.GameBoardObservable
                   .Where (x => x != null)
                   .Select(x => x.TetrominoEvent)
-                  .Where (x => x.State == CurrentTetrominoEventState.NewTetrominoAdded)
+                  .Where (x => x.NewTetrominoAdded)
                   .Select(x => x.CurrentTetromino.Blocks)
                   .Subscribe(x =>
                   {
@@ -36,8 +36,7 @@ public class GameBoardPresenter : MonoBehaviour
                   });
 
         _gameboard.GameBoardObservable
-                  .Where (x => x != null &&
-                          x.TetrominoEvent.State == CurrentTetrominoEventState.ControlTetromino)
+                  .Where (x => x != null && x.TetrominoEvent.HasEvent)
                   .Select(x => x.TetrominoEvent.CurrentTetromino)
                   .Subscribe(x =>
                   {
