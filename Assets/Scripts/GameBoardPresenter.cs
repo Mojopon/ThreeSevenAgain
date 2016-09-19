@@ -14,6 +14,7 @@ public class GameBoardPresenter : MonoBehaviour
     void Awake()
     {
         _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
+        _SceneGameBoard.SetSize(_gameboard.Size);
 
         _gameboard.StateObservable
                   .Where(x => x == GameBoardState.BeforeAddTetromino ||
@@ -43,7 +44,32 @@ public class GameBoardPresenter : MonoBehaviour
                       _SceneGameBoard.MoveTetromino(x.Positions);
                   });
 
+        _gameboard.GameBoardObservable
+                  .Where(x => x != null && x.TetrominoEvent.TetrominoIsPlaced)
+                  .Subscribe(x =>
+                  {
+                      _SceneGameBoard.DestroyTetromino();
+                  });
 
+        _gameboard.GameBoardObservable
+                  .Where(x => x != null && x.PlacedBlockEvent != null)
+                  .Select(x => x.PlacedBlockEvent.placedBlocks)
+                  .Subscribe(x =>
+                  {
+                      foreach (var placedBlock in x)
+                          _SceneGameBoard.PlaceBlock(placedBlock.point, placedBlock.block.Type);
+                  });
+
+        _gameboard.GameBoardObservable
+                  .Where(x => x != null && x.BlockMoveEvent != null && x.BlockMoveEvent.movements != null)
+                  .Select(x => x.BlockMoveEvent.movements)
+                  .Subscribe(x =>
+                  {
+                      foreach (var movement in x.OrderBy(y => y.source.Y))
+                          _SceneGameBoard.MoveBlock(movement.source, movement.destination);
+
+                      Debug.Log(_gameboard);
+                  });
 
         _gameboard.StartGame();
     }
