@@ -89,10 +89,10 @@ public class GameBoardTest
                  .AddTo(subscriptions);
 
         gameBoard.StartGame();
-        Assert.IsFalse(notifiedEvent.TetrominoEvent.HasEvent);
+        Assert.AreEqual(CurrentTetrominoEventState.None, notifiedEvent.TetrominoEvent.State);
 
         gameBoard.AddNextTetromino();
-        Assert.IsTrue(notifiedEvent.TetrominoEvent.HasEvent);
+        Assert.AreEqual(CurrentTetrominoEventState.ControlTetromino, notifiedEvent.TetrominoEvent.State);
 
         var currentTetromino = notifiedEvent.TetrominoEvent.CurrentTetromino;
         // Polyomino of I should has 4 blocks in it
@@ -125,7 +125,8 @@ public class GameBoardTest
     {
         Tetromino currentTetromino = null;
         gameBoard.GameBoardObservable
-                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
+                 .Where(x => x != null &&
+                        x.TetrominoEvent.State == CurrentTetrominoEventState.ControlTetromino)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => currentTetromino = x)
                  .AddTo(subscriptions);
@@ -187,7 +188,8 @@ public class GameBoardTest
     {
         Tetromino currentTetromino = null;
         gameBoard.GameBoardObservable
-                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
+                 .Where(x => x != null && 
+                        x.TetrominoEvent.State == CurrentTetrominoEventState.ControlTetromino)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => currentTetromino = x)
                  .AddTo(subscriptions);
@@ -243,7 +245,8 @@ public class GameBoardTest
     {
         Tetromino currentTetromino = null;
         gameBoard.GameBoardObservable
-                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
+                 .Where(x => x != null &&
+                        x.TetrominoEvent.State == CurrentTetrominoEventState.ControlTetromino)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => currentTetromino = x)
                  .AddTo(subscriptions);
@@ -287,7 +290,8 @@ public class GameBoardTest
     {
         Tetromino tetromino = null;
         gameBoard.GameBoardObservable
-                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
+                 .Where(x => x != null && 
+                        x.TetrominoEvent.State == CurrentTetrominoEventState.ControlTetromino)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => tetromino = x)
                  .AddTo(subscriptions);
@@ -319,7 +323,8 @@ public class GameBoardTest
 
         bool tetrominoCleared = false;
         gameBoard.GameBoardObservable
-                 .Where(x => x != null && !x.TetrominoEvent.HasEvent)
+                 .Where(x => x != null &&
+                        x.TetrominoEvent.State == CurrentTetrominoEventState.TetrominoPlaced)
                  .Subscribe(x => tetrominoCleared = true)
                  .AddTo(subscriptions);
 

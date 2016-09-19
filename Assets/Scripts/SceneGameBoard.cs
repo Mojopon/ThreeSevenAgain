@@ -30,6 +30,16 @@ public class SceneGameBoard : MonoBehaviour, ISceneGameBoard
         _currentTetromino = CreateSceneTetromino(blocks);
     }
 
+    public void DestroyTetromino()
+    {
+        _currentTetromino.sceneBlocks.ForEach((count, block) =>
+        {
+            Destroy(block.gameObject);
+        });
+
+        _currentTetromino = null;
+    }
+
     private SceneTetromino CreateSceneTetromino(ThreeSevenBlock[] blockTypes)
     {
         List<SceneBlock> sceneBlocks = new List<SceneBlock>();

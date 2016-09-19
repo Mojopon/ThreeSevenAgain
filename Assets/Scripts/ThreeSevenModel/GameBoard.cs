@@ -26,10 +26,17 @@ public class GameBoardEvents
     public BlockMoveEvent        BlockMoveEvent       = null;
 }
 
+public enum CurrentTetrominoEventState
+{
+    None,
+    NewTetrominoAdded,
+    ControlTetromino,
+    TetrominoPlaced,
+}
+
 public class CurrentTetrominoEvent
 {
-    public bool HasEvent { get { return CurrentTetromino != null; } }
-    public bool NewTetrominoAdded { get; set; }
+    public CurrentTetrominoEventState State { get; set; }
 
     public Tetromino    CurrentTetromino = null;
     public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
@@ -113,14 +120,14 @@ public class GameBoard : CellBoard, IGameBoardObservable
     }
 
     private Tetromino _currentTetromino;
-    private bool _newTetrominoAdded = false;
+    private CurrentTetrominoEventState _currentTetrominoEventState;
     public void AddNextTetromino()
     {
         //place NextTetromino on Center
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
         _currentTetromino = NextTetromino;
         _nextTetrominos.Remove(NextTetromino);
-        _newTetrominoAdded = true;
+        _currentTetrominoEventState = CurrentTetrominoEventState.NewTetrominoAdded;
 
         PrepareNextTetromino();
         UpdateGameBoard();
@@ -168,8 +175,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
         { CurrentTetromino  = this._currentTetromino,
-          NewTetrominoAdded = this._newTetrominoAdded};
-        _newTetrominoAdded = false;
+          State             = this._currentTetrominoEventState};
+        _currentTetrominoEventState = CurrentTetrominoEventState.None;
 
         _gameboardEvents.BlockMoveEvent = new BlockMoveEvent()
         { movements = _blockMovements };
@@ -203,13 +210,13 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
         if (!moveSucceed)
         {
-            Place();
+            PlaceTetromino();
         }
 
         return moveSucceed;
     }
 
-    private void Place()
+    private void PlaceTetromino()
     {
         if(CanPlaceCurrentTetromino())
         {
