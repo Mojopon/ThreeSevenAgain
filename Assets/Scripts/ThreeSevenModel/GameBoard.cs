@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using ThreeSeven.Model;
+using ThreeSeven.Helper;
 using System;
 using UniRx;
 using UnityEngine;
@@ -20,9 +21,10 @@ public class GameBoardEvents
 {
     public bool IsReady { get { return Cells != null; } }
 
-    public Cell[,] Cells = null;
+    public Cell[,]               Cells                = null;
     public CurrentTetrominoEvent TetrominoEvent       = null;
     public PlacedBlockEvent      PlacedBlockEvent     = null;
+    public DeletedBlockEvent     DeletedBlockEvent    = null;
     public BlockMoveEvent        BlockMoveEvent       = null;
 }
 
@@ -52,6 +54,17 @@ public class BlockMoveEvent
 {
     public bool HasEvent { get { return movements != null; } }
     public TwoDimensionalMovement[] movements = null;
+}
+
+public class DeletedBlockEvent
+{
+    public DeletedBlock[] deletedBlocks;
+}
+
+public class DeletedBlock
+{
+    public IBlock block;
+    public Point<int> point;
 }
 
 public class GameBoard : CellBoard, IGameBoardObservable
@@ -104,11 +117,15 @@ public class GameBoard : CellBoard, IGameBoardObservable
     {
         switch(_stateReactiveProperty.Value)
         {
+            case GameBoardState.Default:
             case GameBoardState.BeforeAddTetromino:
                 AddNextTetromino();
                 break;
             case GameBoardState.BeforeDropBlocks:
                 DropAllBlocks();
+                break;
+            case GameBoardState.BeforeDeleteBlocks:
+                Resolve();
                 break;
         }
     }
@@ -116,7 +133,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
     private Tetromino _currentTetromino;
     private bool _newTetrominoAdded = false;
     private bool _tetrominoIsPlaced = false;
-    public void AddNextTetromino()
+    private void AddNextTetromino()
     {
         //place NextTetromino on Center
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
@@ -156,6 +173,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
     private GameBoardEvents             _gameboardEvents  = null;
     private PlacedBlockEvent            _placedBlockEvent = null;
     private TwoDimensionalMovement[]    _blockMovements   = null;
+    private DeletedBlockEvent           _deletedBlockEvent = null;
     // UpdateGameBoard will notify that the board is updated to all its subscribers
     private void UpdateGameBoard()
     {
@@ -166,6 +184,12 @@ public class GameBoard : CellBoard, IGameBoardObservable
         {
             _gameboardEvents.PlacedBlockEvent = _placedBlockEvent;
             _placedBlockEvent = null;
+        }
+
+        if(_deletedBlockEvent != null)
+        {
+            _gameboardEvents.DeletedBlockEvent = _deletedBlockEvent;
+            _deletedBlockEvent = null;
         }
 
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
@@ -236,10 +260,16 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
         UpdateGameBoard();
 
+        _stateReactiveProperty.Value = GameBoardState.BeforeDeleteBlocks;
+    }
+
+    private void Resolve()
+    {
+        
+
         _stateReactiveProperty.Value = GameBoardState.BeforeAddTetromino;
     }
-    
-    
+
     // this method returns an array which is same sized for the Cells
     // and stores Point used for blocks where to move
     // for example if (5, 10) in the array has a Point(5, 12)

@@ -17,8 +17,8 @@ public class GameBoardPresenter : MonoBehaviour
         _SceneGameBoard.SetSize(_gameboard.Size);
 
         _gameboard.StateObservable
-                  .Where(x => x == GameBoardState.BeforeAddTetromino ||
-                              x == GameBoardState.BeforeDropBlocks)
+                  .Where(x => x != GameBoardState.OnControlTetromino)
+                  .Skip(1)
                   .Subscribe(x =>
                   {
                       _gameboard.GoNextState();
@@ -74,7 +74,7 @@ public class GameBoardPresenter : MonoBehaviour
 
     void Start()
     {
-        _gameboard.AddNextTetromino();
+        _gameboard.GoNextState();
     }
 
     void Update()

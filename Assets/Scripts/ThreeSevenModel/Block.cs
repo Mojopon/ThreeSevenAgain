@@ -56,6 +56,11 @@ namespace ThreeSeven.Model
         {
             return new Block(blockType);
         }
+
+        public static Block Create(int number)
+        {
+            return Create((ThreeSevenBlock)number);
+        }
     }
 
     public class NoBlock : IBlock

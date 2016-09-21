@@ -91,7 +91,7 @@ public class GameBoardTest
         gameBoard.StartGame();
         Assert.IsFalse(notifiedEvent.TetrominoEvent.HasEvent);
 
-        gameBoard.AddNextTetromino();
+        gameBoard.GoNextState();
         Assert.IsTrue(notifiedEvent.TetrominoEvent.HasEvent);
 
         var currentTetromino = notifiedEvent.TetrominoEvent.CurrentTetromino;
@@ -131,7 +131,7 @@ public class GameBoardTest
                  .AddTo(subscriptions);
 
         gameBoard.StartGame();
-        gameBoard.AddNextTetromino();
+        gameBoard.GoNextState();
         var firstTetrominoPos = currentTetromino.Position;
 
         Assert.IsTrue(gameBoard.MoveLeft());
@@ -199,7 +199,7 @@ public class GameBoardTest
         cellsClone[4, 13].Set(Block.Create(ThreeSevenBlock.Five));
         gameBoard.CellsClone = cellsClone;
 
-        gameBoard.AddNextTetromino();
+        gameBoard.GoNextState();
         Point<int> firstTetrominoPos;
         firstTetrominoPos = currentTetromino.Position;
 
@@ -221,9 +221,17 @@ public class GameBoardTest
         Assert.AreEqual(firstTetrominoPos.Add(0, 8), currentTetromino.Position);
         Assert.False(gameBoard.MoveDown());
 
-        gameBoard.AddNextTetromino();
-        firstTetrominoPos = currentTetromino.Position;
+        GameBoardState state = GameBoardState.Default;
+        gameBoard.StateObservable
+                 .Subscribe(x => state = x)
+                 .AddTo(subscriptions);
 
+        while (state != GameBoardState.OnControlTetromino)
+        {
+            gameBoard.GoNextState();
+        }
+
+        firstTetrominoPos = currentTetromino.Position;
 
         Assert.IsTrue(gameBoard.MoveDown());
         Assert.AreEqual(firstTetrominoPos.Add(0, 1), currentTetromino.Position);
@@ -249,7 +257,7 @@ public class GameBoardTest
                  .AddTo(subscriptions);
 
         gameBoard.StartGame();
-        gameBoard.AddNextTetromino();
+        gameBoard.GoNextState();
         var firstTetrominoPos = currentTetromino.Position;
 
         Point<int>[] pattern = null;
@@ -293,7 +301,7 @@ public class GameBoardTest
                  .AddTo(subscriptions);
 
         gameBoard.StartGame();
-        gameBoard.AddNextTetromino();
+        gameBoard.GoNextState();
         var firstTetrominoPos = tetromino.Position;
 
         Assert.IsTrue(gameBoard.MoveDown());
@@ -450,5 +458,63 @@ public class GameBoardTest
                                .Select(x => x)
                                .FirstOrDefault()
                                .destination.Equals(Point<int>.At(3, 10)));
+    }
+
+    [Test]
+    public void StateTest()
+    {
+        Tetromino tetromino = null;
+        gameBoard.GameBoardObservable
+                 .Where(x => x != null && x.TetrominoEvent.HasEvent)
+                 .Select(x => x.TetrominoEvent.CurrentTetromino)
+                 .Subscribe(x => tetromino = x)
+                 .AddTo(subscriptions);
+
+        GameBoardState state = GameBoardState.Default;
+        gameBoard.StateObservable
+                 .Subscribe(x => state = x)
+                 .AddTo(subscriptions);
+        Assert.AreEqual(GameBoardState.Default, state);
+
+        gameBoard.StartGame();
+        Assert.AreEqual(GameBoardState.Default, state);
+
+        gameBoard.GoNextState();
+        Assert.AreEqual(GameBoardState.OnControlTetromino, state);
+
+        var firstTetrominoPos = tetromino.Position;
+
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 1), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 2), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 3), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 4), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 5), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 6), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 7), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 8), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 9), tetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 10), tetromino.Position);
+
+        Assert.IsFalse(gameBoard.MoveDown());
+        Assert.AreEqual(GameBoardState.BeforeDropBlocks, state);
+
+        gameBoard.GoNextState();
+        Assert.AreEqual(GameBoardState.BeforeDeleteBlocks, state);
+
+        gameBoard.GoNextState();
+        Assert.AreEqual(GameBoardState.BeforeAddTetromino, state);
+
+        gameBoard.GoNextState();
+        Assert.AreEqual(GameBoardState.OnControlTetromino, state);
     }
 }
