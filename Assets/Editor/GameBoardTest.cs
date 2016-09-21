@@ -241,9 +241,17 @@ public class GameBoardTest
         Assert.AreEqual(firstTetrominoPos.Add(0, 3), currentTetromino.Position);
         Assert.IsTrue(gameBoard.MoveDown());
         Assert.AreEqual(firstTetrominoPos.Add(0, 4), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 5), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 6), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 7), currentTetromino.Position);
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(firstTetrominoPos.Add(0, 8), currentTetromino.Position);
+
         Assert.IsFalse(gameBoard.MoveDown());
 
-        //Debug.Log(gameBoard);
     }
 
     [Test]
@@ -506,6 +514,13 @@ public class GameBoardTest
         Assert.AreEqual(firstTetrominoPos.Add(0, 10), tetromino.Position);
 
         Assert.IsFalse(gameBoard.MoveDown());
+        Assert.AreEqual(GameBoardState.BeforeDropBlocks, state);
+
+        gameBoard.GoNextState();
+        Assert.AreEqual(GameBoardState.BeforeDeleteBlocks, state);
+
+        // DeleteBlocks happens here so it will go back to BeforeDropBlocks state
+        gameBoard.GoNextState();
         Assert.AreEqual(GameBoardState.BeforeDropBlocks, state);
 
         gameBoard.GoNextState();

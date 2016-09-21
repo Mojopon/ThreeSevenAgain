@@ -87,6 +87,14 @@ public class SceneGameBoard : MonoBehaviour, ISceneGameBoard
         _grid[source.X, source.Y] = null;
     }
 
+    public void DeleteBlock(Point<int> point)
+    {
+        if (_grid[point.X, point.Y] == null) return;
+
+        _grid[point.X, point.Y].Delete();
+        _grid[point.X, point.Y] = null;
+    }
+
     public void UpdateGrid(ThreeSevenBlock[,] cells)
     {
 

@@ -63,7 +63,8 @@ public class DeletedBlockEvent
 
 public class DeletedBlock
 {
-    public IBlock block;
+    public int number;
+    public ThreeSevenBlock type;
     public Point<int> point;
 }
 
@@ -265,9 +266,40 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
     private void Resolve()
     {
-        
+        var pointsToDeleteBlocks = Cells.CellsToNumberGrid().ResolveThreeSevenGrid();
 
-        _stateReactiveProperty.Value = GameBoardState.BeforeAddTetromino;
+        if (pointsToDeleteBlocks.Length == 0)
+        {
+            _stateReactiveProperty.Value = GameBoardState.BeforeAddTetromino;
+            return;
+        }
+        else
+        {
+            DeleteBlocks(pointsToDeleteBlocks);
+            _stateReactiveProperty.Value = GameBoardState.BeforeDropBlocks;
+        }
+    }
+
+    private void DeleteBlocks(Point<int>[] points)
+    {
+        var _deletedBlockList = new List<DeletedBlock>();
+
+        points.ForEach(point =>
+        {
+            var block = Cells[point.X, point.Y].Block;
+            var deletedBlock = new DeletedBlock()
+            {
+                number = block.GetNumber(),
+                type = block.Type,
+                point = point,
+            };
+            _deletedBlockList.Add(deletedBlock);
+
+            Cells[point.X, point.Y].Clear();
+        });
+
+        _deletedBlockEvent = new DeletedBlockEvent()
+        { deletedBlocks = _deletedBlockList.ToArray() };
     }
 
     // this method returns an array which is same sized for the Cells

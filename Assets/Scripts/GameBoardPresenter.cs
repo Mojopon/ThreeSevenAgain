@@ -69,6 +69,15 @@ public class GameBoardPresenter : MonoBehaviour
                           _SceneGameBoard.MoveBlock(movement.source, movement.destination);
                   });
 
+        _gameboard.GameBoardObservable
+                  .Where(x => x != null && x.DeletedBlockEvent != null)
+                  .Select(x => x.DeletedBlockEvent.deletedBlocks)
+                  .Subscribe(x =>
+                  {
+                      foreach (var deletedBlock in x)
+                          _SceneGameBoard.DeleteBlock(deletedBlock.point);
+                  });
+
         _gameboard.StartGame();
     }
 

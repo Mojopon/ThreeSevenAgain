@@ -67,7 +67,6 @@ public class GridResolveTest
         grid = RotateGrid(grid);
 
         resolvedPoints = grid.ResolveThreeSevenGrid();
-
         Assert.AreEqual(3, resolvedPoints.Length);
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 1 }));
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 2 }));
@@ -84,12 +83,24 @@ public class GridResolveTest
         grid = RotateGrid(grid);
 
         resolvedPoints = grid.ResolveThreeSevenGrid();
-
         Assert.AreEqual(4, resolvedPoints.Length);
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 1 }));
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 2 }));
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 3 }));
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 4 }));
+
+        grid = new int[,]
+        {
+            {0, 0, 0, 0 },
+            {0, 1, 0, 0 },
+            {0, 7, 2, 0 },
+            {0, 3, 6, 5 },
+            {6, 7, 4, 7 },
+        };
+        grid = RotateGrid(grid);
+
+        resolvedPoints = grid.ResolveThreeSevenGrid();
+        Assert.AreEqual(0, resolvedPoints.Length);
     }
 
     private int[,] RotateGrid(int[,] origin)
