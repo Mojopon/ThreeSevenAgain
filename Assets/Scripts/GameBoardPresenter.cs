@@ -25,11 +25,11 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        
+
         _gameboard.GameBoardObservable
-                  .Where (x => x != null)
+                  .Where(x => x != null)
                   .Select(x => x.TetrominoEvent)
-                  .Where (x => x.NewTetrominoAdded)
+                  .Where(x => x.NewTetrominoAdded)
                   .Select(x => x.CurrentTetromino.Blocks)
                   .Subscribe(x =>
                   {
@@ -37,7 +37,7 @@ public class GameBoardPresenter : MonoBehaviour
                   });
 
         _gameboard.GameBoardObservable
-                  .Where (x => x != null && x.TetrominoEvent.HasEvent)
+                  .Where(x => x != null && x.TetrominoEvent.HasEvent)
                   .Select(x => x.TetrominoEvent.CurrentTetromino)
                   .Subscribe(x =>
                   {
@@ -79,19 +79,23 @@ public class GameBoardPresenter : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftArrow) || 
+            Input.GetKeyDown(KeyCode.A))
         {
             _gameboard.MoveLeft();
         }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.RightArrow) ||
+                 Input.GetKeyDown(KeyCode.D))
         {
             _gameboard.MoveRight();
         }
-        else if (Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Input.GetKeyDown(KeyCode.DownArrow) ||
+                 Input.GetKeyDown(KeyCode.S))
         {
             _gameboard.MoveDown();
         }
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        else if (Input.GetKeyDown(KeyCode.UpArrow)||
+                 Input.GetKeyDown(KeyCode.W))
         {
             _gameboard.Turn();
         }

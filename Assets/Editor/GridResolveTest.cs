@@ -50,6 +50,48 @@ public class GridResolveTest
         Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 3, Y = 3 }));
     }
 
+    [Test]
+    public void Should_Resolve_Three_Seven()
+    {
+        int[,] grid;
+        Point<int>[] resolvedPoints;
+
+
+        grid = new int[,]
+        {
+            {0, 0, 0 },
+            {0, 7, 0 },
+            {0, 7, 0 },
+            {0, 7, 0 },
+        };
+        grid = RotateGrid(grid);
+
+        resolvedPoints = grid.ResolveThreeSevenGrid();
+
+        Assert.AreEqual(3, resolvedPoints.Length);
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 1 }));
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 2 }));
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 3 }));
+
+        grid = new int[,]
+        {
+            {0, 0, 0, 0 },
+            {0, 7, 0, 0 },
+            {0, 7, 2, 0 },
+            {0, 7, 1, 2 },
+            {7, 7, 1, 7 },
+        };
+        grid = RotateGrid(grid);
+
+        resolvedPoints = grid.ResolveThreeSevenGrid();
+
+        Assert.AreEqual(4, resolvedPoints.Length);
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 1 }));
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 2 }));
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 3 }));
+        Assert.IsTrue(resolvedPoints.Contains(new Point<int>() { X = 1, Y = 4 }));
+    }
+
     private int[,] RotateGrid(int[,] origin)
     {
         var grid = new int[origin.GetLength(1), origin.GetLength(0)];
