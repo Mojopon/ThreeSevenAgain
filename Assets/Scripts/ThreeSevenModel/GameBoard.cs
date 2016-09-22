@@ -253,7 +253,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
     public void DropAllBlocks()
     {
-        _blockMovements = GetPositionsToDropObjects();
+        _blockMovements = Cells.CellsToBoolGrid().DropThreeSevenGrid();
         _blockMovements.ForEach((movement) =>
         {
             Cells.Swap(movement);
@@ -302,51 +302,6 @@ public class GameBoard : CellBoard, IGameBoardObservable
         { deletedBlocks = _deletedBlockList.ToArray() };
 
         UpdateGameBoard();
-    }
-
-    // this method returns an array which is same sized for the Cells
-    // and stores Point used for blocks where to move
-    // for example if (5, 10) in the array has a Point(5, 12)
-    // meand the block at (5, 10) will move to (5, 12) 
-    private TwoDimensionalMovement[] GetPositionsToDropObjects()
-    {
-        bool[,] isEmptyCell = Cells.CellsToBoolGrid();
-
-        List<TwoDimensionalMovement> objectMovements = new List<TwoDimensionalMovement>(); 
-        //TwoDimensionalMovements objectMovements = new TwoDimensionalMovements(Size);
-
-        for(int y = Size.Height - 1; y >= 0; y--)
-        {
-            for(int x = 0; x < Size.Width; x++)
-            {
-                if (isEmptyCell[x, y]) continue;
-
-                int i = 0;
-                int verticalMove = 0;
-                while(true)
-                {
-                    i++;
-
-                    // add movement when the space below the block is empty to know
-                    // how many times drops the block
-                    if (isEmptyCell.IsOutOfRange(Point<int>.At(x, y + i)) ||
-                       !isEmptyCell[x, y + i])
-                    {
-                        break;
-                    }
-
-                    verticalMove++;
-                }
-
-                if (verticalMove == 0) continue;
-
-                var movement = new TwoDimensionalMovement(Point<int>.At(x, y), Point<int>.At(x, y + verticalMove));
-                objectMovements.Add(movement);
-                isEmptyCell.Swap(movement);
-            }
-        }
-
-        return objectMovements.ToArray();
     }
 
     private bool MoveCurrentTetrominoTo(Point<int> newPosition)

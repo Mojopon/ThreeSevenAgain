@@ -127,7 +127,6 @@ public class GameBoardPresenter : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Space))
         {
-            _gameboard.DropAllBlocks();
         }
     }
 }
