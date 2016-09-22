@@ -35,16 +35,5 @@ public class CellBoardTest
         {
             Assert.IsTrue(cell.IsNull);
         });
-
-        bool[,] cellsEmptyList = cellboard.IsEmptyCell;
-
-        cellsEmptyList.ForEach((point, cell) =>
-        {
-            Assert.IsTrue(cell);
-        });
-
-        cellboard.Cells[2, 2].Set(Block.Create(ThreeSevenBlock.One));
-        Assert.IsFalse(cellboard.Cells[2, 2].IsNull);
-        Assert.IsFalse(cellboard.IsEmptyCell[2, 2]);
     }
 }

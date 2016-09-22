@@ -310,7 +310,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
     // meand the block at (5, 10) will move to (5, 12) 
     private TwoDimensionalMovement[] GetPositionsToDropObjects()
     {
-        bool[,] isEmptyCell = IsEmptyCell;
+        bool[,] isEmptyCell = Cells.CellsToBoolGrid();
 
         List<TwoDimensionalMovement> objectMovements = new List<TwoDimensionalMovement>(); 
         //TwoDimensionalMovements objectMovements = new TwoDimensionalMovements(Size);
