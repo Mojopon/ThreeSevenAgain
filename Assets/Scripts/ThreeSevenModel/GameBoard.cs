@@ -300,6 +300,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
         _deletedBlockEvent = new DeletedBlockEvent()
         { deletedBlocks = _deletedBlockList.ToArray() };
+
+        UpdateGameBoard();
     }
 
     // this method returns an array which is same sized for the Cells

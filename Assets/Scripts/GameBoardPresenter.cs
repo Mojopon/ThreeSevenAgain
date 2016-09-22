@@ -3,6 +3,7 @@ using System.Collections;
 using ThreeSeven.Model;
 using UniRx;
 using System.Linq;
+using System;
 
 public class GameBoardPresenter : MonoBehaviour
 {
@@ -17,8 +18,18 @@ public class GameBoardPresenter : MonoBehaviour
         _SceneGameBoard.SetSize(_gameboard.Size);
 
         _gameboard.StateObservable
-                  .Where(x => x != GameBoardState.OnControlTetromino)
-                  .Skip(1)
+                  .Where(x => x != GameBoardState.OnControlTetromino
+                           && x != GameBoardState.BeforeDeleteBlocks)
+                  .Delay(TimeSpan.FromMilliseconds(10f))
+                  .Subscribe(x =>
+                  {
+                      _gameboard.GoNextState();
+                  })
+                  .AddTo(gameObject);
+
+        _gameboard.StateObservable
+                  .Where(x => x == GameBoardState.BeforeDeleteBlocks)
+                  .Delay(TimeSpan.FromMilliseconds(200f))
                   .Subscribe(x =>
                   {
                       _gameboard.GoNextState();
@@ -34,7 +45,8 @@ public class GameBoardPresenter : MonoBehaviour
                   .Subscribe(x =>
                   {
                       _SceneGameBoard.AddTetromino(x.Select(block => block.Type).ToArray());
-                  });
+                  })
+                  .AddTo(gameObject);
 
         _gameboard.GameBoardObservable
                   .Where(x => x != null && x.TetrominoEvent.HasEvent)
@@ -42,14 +54,16 @@ public class GameBoardPresenter : MonoBehaviour
                   .Subscribe(x =>
                   {
                       _SceneGameBoard.MoveTetromino(x.Positions);
-                  });
+                  })
+                  .AddTo(gameObject);
 
         _gameboard.GameBoardObservable
                   .Where(x => x != null && x.TetrominoEvent.TetrominoIsPlaced)
                   .Subscribe(x =>
                   {
                       _SceneGameBoard.DestroyTetromino();
-                  });
+                  })
+                  .AddTo(gameObject);
 
         _gameboard.GameBoardObservable
                   .Where(x => x != null && x.PlacedBlockEvent != null)
@@ -58,7 +72,8 @@ public class GameBoardPresenter : MonoBehaviour
                   {
                       foreach (var placedBlock in x)
                           _SceneGameBoard.PlaceBlock(placedBlock.point, placedBlock.block.Type);
-                  });
+                  })
+                  .AddTo(gameObject);
 
         _gameboard.GameBoardObservable
                   .Where(x => x != null && x.BlockMoveEvent != null && x.BlockMoveEvent.movements != null)
@@ -67,7 +82,8 @@ public class GameBoardPresenter : MonoBehaviour
                   {
                       foreach (var movement in x.OrderByDescending(y => y.source.Y))
                           _SceneGameBoard.MoveBlock(movement.source, movement.destination);
-                  });
+                  })
+                  .AddTo(gameObject);
 
         _gameboard.GameBoardObservable
                   .Where(x => x != null && x.DeletedBlockEvent != null)
@@ -76,7 +92,8 @@ public class GameBoardPresenter : MonoBehaviour
                   {
                       foreach (var deletedBlock in x)
                           _SceneGameBoard.DeleteBlock(deletedBlock.point);
-                  });
+                  })
+                  .AddTo(gameObject);
 
         _gameboard.StartGame();
     }

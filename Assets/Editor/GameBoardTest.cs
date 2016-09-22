@@ -467,6 +467,58 @@ public class GameBoardTest
                                .FirstOrDefault()
                                .destination.Equals(Point<int>.At(3, 10)));
     }
+    
+    [Test]
+    public void Should_Notify_Deleted_Blocks()
+    {
+        GameBoardState state = GameBoardState.Default;
+        DeletedBlockEvent deletedBlockEvent = null;
+        gameBoard.GameBoardObservable
+                 .Where(x => x != null && x.DeletedBlockEvent != null)
+                 .Select(x => x.DeletedBlockEvent)
+                 .Subscribe(x => deletedBlockEvent = x)
+                 .AddTo(subscriptions);
+
+        gameBoard.StateObservable
+                 .Subscribe(x => state = x)
+                 .AddTo(subscriptions);
+
+        gameBoard.StartGame();
+        gameBoard.GoNextState();
+
+        Assert.IsTrue(gameBoard.MoveLeft());
+        Assert.IsTrue(gameBoard.MoveLeft());
+        Assert.IsTrue(gameBoard.MoveLeft());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.IsTrue(gameBoard.MoveDown());
+
+        Assert.IsNull(deletedBlockEvent);
+
+        Assert.IsFalse(gameBoard.MoveDown());
+        Assert.AreEqual(GameBoardState.BeforeDropBlocks, state);
+        gameBoard.GoNextState();
+        Assert.IsNull(deletedBlockEvent);
+        Assert.AreEqual(GameBoardState.BeforeDeleteBlocks, state);
+
+        gameBoard.GoNextState();
+        Assert.AreEqual(GameBoardState.BeforeDropBlocks, state);
+
+        Assert.IsNotNull(deletedBlockEvent);
+
+        Assert.IsTrue(deletedBlockEvent.deletedBlocks.Select(x => x.point).Contains(Point<int>.At(0, 12)));
+        Assert.IsTrue(deletedBlockEvent.deletedBlocks.Select(x => x.point).Contains(Point<int>.At(0, 13)));
+
+        Assert.AreEqual(3, deletedBlockEvent.deletedBlocks.Where(x => x.point.Equals(Point<int>.At(0, 12))).Select(x => x.number).First());
+        Assert.AreEqual(4, deletedBlockEvent.deletedBlocks.Where(x => x.point.Equals(Point<int>.At(0, 13))).Select(x => x.number).First());
+    }
 
     [Test]
     public void StateTest()
