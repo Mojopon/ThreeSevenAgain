@@ -136,6 +136,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
     private bool _tetrominoIsPlaced = false;
     private void AddNextTetromino()
     {
+        if (NextTetromino == null) return;
+
         //place NextTetromino on Center
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
         _currentTetromino = NextTetromino;

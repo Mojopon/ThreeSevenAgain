@@ -10,34 +10,21 @@ public class GameBoardPresenter : MonoBehaviour
     [SerializeField]
     private SceneGameBoard _SceneGameBoard;
 
-    private GameBoard _gameboard;
+    [SerializeField]
+    private GameBoardManager _GameBoardManager;
 
-    void Awake()
+    void Start()
     {
-        _gameboard = new GameBoard(new Size<int>() { Width = 7, Height = 16 });
-        _SceneGameBoard.SetSize(_gameboard.Size);
+        SubscribeGameBoard(_GameBoardManager.GameBoard);
 
-        _gameboard.StateObservable
-                  .Where(x => x != GameBoardState.OnControlTetromino
-                           && x != GameBoardState.BeforeDeleteBlocks)
-                  .Delay(TimeSpan.FromMilliseconds(10f))
-                  .Subscribe(x =>
-                  {
-                      _gameboard.GoNextState();
-                  })
-                  .AddTo(gameObject);
+        _GameBoardManager.StartGame();
+    }
 
-        _gameboard.StateObservable
-                  .Where(x => x == GameBoardState.BeforeDeleteBlocks)
-                  .Delay(TimeSpan.FromMilliseconds(200f))
-                  .Subscribe(x =>
-                  {
-                      _gameboard.GoNextState();
-                  })
-                  .AddTo(gameObject);
+    private void SubscribeGameBoard(IGameBoardObservable gameBoard)
+    {
+        _SceneGameBoard.SetSize(GlobalSettings.GameBoardSize);
 
-
-        _gameboard.GameBoardObservable
+        gameBoard.GameBoardObservable
                   .Where(x => x != null)
                   .Select(x => x.TetrominoEvent)
                   .Where(x => x.NewTetrominoAdded)
@@ -48,7 +35,7 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        _gameboard.GameBoardObservable
+        gameBoard.GameBoardObservable
                   .Where(x => x != null && x.TetrominoEvent.HasEvent)
                   .Select(x => x.TetrominoEvent.CurrentTetromino)
                   .Subscribe(x =>
@@ -57,7 +44,7 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        _gameboard.GameBoardObservable
+        gameBoard.GameBoardObservable
                   .Where(x => x != null && x.TetrominoEvent.TetrominoIsPlaced)
                   .Subscribe(x =>
                   {
@@ -65,7 +52,7 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        _gameboard.GameBoardObservable
+        gameBoard.GameBoardObservable
                   .Where(x => x != null && x.PlacedBlockEvent != null)
                   .Select(x => x.PlacedBlockEvent.placedBlocks)
                   .Subscribe(x =>
@@ -75,7 +62,7 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        _gameboard.GameBoardObservable
+        gameBoard.GameBoardObservable
                   .Where(x => x != null && x.BlockMoveEvent != null && x.BlockMoveEvent.movements != null)
                   .Select(x => x.BlockMoveEvent.movements)
                   .Subscribe(x =>
@@ -85,7 +72,7 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        _gameboard.GameBoardObservable
+        gameBoard.GameBoardObservable
                   .Where(x => x != null && x.DeletedBlockEvent != null)
                   .Select(x => x.DeletedBlockEvent.deletedBlocks)
                   .Subscribe(x =>
@@ -94,39 +81,5 @@ public class GameBoardPresenter : MonoBehaviour
                           _SceneGameBoard.DeleteBlock(deletedBlock.point);
                   })
                   .AddTo(gameObject);
-
-        _gameboard.StartGame();
-    }
-
-    void Start()
-    {
-        _gameboard.GoNextState();
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.LeftArrow) || 
-            Input.GetKeyDown(KeyCode.A))
-        {
-            _gameboard.MoveLeft();
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow) ||
-                 Input.GetKeyDown(KeyCode.D))
-        {
-            _gameboard.MoveRight();
-        }
-        else if (Input.GetKeyDown(KeyCode.DownArrow) ||
-                 Input.GetKeyDown(KeyCode.S))
-        {
-            _gameboard.MoveDown();
-        }
-        else if (Input.GetKeyDown(KeyCode.UpArrow)||
-                 Input.GetKeyDown(KeyCode.W))
-        {
-            _gameboard.Turn();
-        }
-        else if (Input.GetKeyDown(KeyCode.Space))
-        {
-        }
     }
 }

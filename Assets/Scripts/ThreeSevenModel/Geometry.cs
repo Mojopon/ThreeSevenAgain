@@ -32,6 +32,7 @@ namespace ThreeSeven.Model
         }
     }
 
+    [System.Serializable]
     public struct Size<T>
     {
         public T Width;
