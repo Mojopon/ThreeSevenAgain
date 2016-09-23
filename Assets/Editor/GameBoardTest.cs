@@ -353,19 +353,19 @@ public class GameBoardTest
         var placedBlocks = placedBlockEvent.placedBlocks;
         Assert.AreEqual(4, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 13)))
                                        .First()
-                                       .block.GetNumber());
+                                       .number);
         
         Assert.AreEqual(3, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 12)))
                                        .First()
-                                       .block.GetNumber());
+                                       .number);
 
         Assert.AreEqual(2, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 11)))
                                        .First()
-                                       .block.GetNumber());
+                                       .number);
 
         Assert.AreEqual(1, placedBlocks.Where(x => x.point.Equals(Point<int>.At(3, 10)))
                                        .First()
-                                       .block.GetNumber());
+                                       .number);
     }
 
     [Test]

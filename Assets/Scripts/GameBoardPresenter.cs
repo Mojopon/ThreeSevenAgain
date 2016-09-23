@@ -58,7 +58,7 @@ public class GameBoardPresenter : MonoBehaviour
                   .Subscribe(x =>
                   {
                       foreach (var placedBlock in x)
-                          _SceneGameBoard.PlaceBlock(placedBlock.point, placedBlock.block.Type);
+                          _SceneGameBoard.PlaceBlock(placedBlock.point, placedBlock.type);
                   })
                   .AddTo(gameObject);
 

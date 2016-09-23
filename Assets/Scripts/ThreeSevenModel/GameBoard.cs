@@ -17,57 +17,6 @@ public enum GameBoardState
     BeforeDeleteBlocks,
 }
 
-public class GameBoardEvents
-{
-    public bool IsReady { get { return Cells != null; } }
-
-    public Cell[,]               Cells                = null;
-    public CurrentTetrominoEvent TetrominoEvent       = null;
-    public PlacedBlockEvent      PlacedBlockEvent     = null;
-    public DeletedBlockEvent     DeletedBlockEvent    = null;
-    public BlockMoveEvent        BlockMoveEvent       = null;
-}
-
-public class CurrentTetrominoEvent
-{
-    public bool HasEvent { get { return CurrentTetromino != null; } }
-    public bool NewTetrominoAdded { get; set; }
-    public bool TetrominoIsPlaced { get; set; }
-
-    public Tetromino    CurrentTetromino = null;
-    public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
-    public IBlock[]     CurrentTetrominoBlocks    { get { return CurrentTetromino.Blocks; } }
-}
-
-public struct PlacedBlock
-{
-    public IBlock block;
-    public Point<int> point;
-}
-
-public class PlacedBlockEvent
-{
-    public PlacedBlock[] placedBlocks;
-}
-
-public class BlockMoveEvent
-{
-    public bool HasEvent { get { return movements != null; } }
-    public TwoDimensionalMovement[] movements = null;
-}
-
-public class DeletedBlockEvent
-{
-    public DeletedBlock[] deletedBlocks;
-}
-
-public class DeletedBlock
-{
-    public int number;
-    public ThreeSevenBlock type;
-    public Point<int> point;
-}
-
 public class GameBoard : CellBoard, IGameBoardObservable
 {
     public IObservable<GameBoardState> StateObservable { get { return _stateReactiveProperty.AsObservable(); } }
@@ -399,7 +348,11 @@ public class GameBoard : CellBoard, IGameBoardObservable
         _currentTetromino.Foreach((point, block) => 
         {
             Cells[point.X, point.Y].Set(block);
-            placedBlocks.Add(new PlacedBlock() { block = block, point = point });
+            placedBlocks.Add(new PlacedBlock()
+            {
+                type   = block.Type,
+                number = block.GetNumber(),
+                point  = point });
         });
 
         _placedBlockEvent = new PlacedBlockEvent() { placedBlocks = placedBlocks.ToArray() };

@@ -36,7 +36,7 @@ public class GameBoardManager : MonoBehaviour
     private void InitializeGameBoard ()
     {
         _gameboard = new GameBoard(GlobalSettings.GameBoardSize);
-
+        
         _gameboard.StateObservable
                   .Where(x => x != GameBoardState.OnControlTetromino
                            && x != GameBoardState.BeforeDeleteBlocks)
