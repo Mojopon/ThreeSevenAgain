@@ -5,19 +5,19 @@ using UniRx;
 using System.Linq;
 using System;
 
-public class GameBoardPresenter : MonoBehaviour
+public class PlayerGameBoardPresenter : MonoBehaviour
 {
     [SerializeField]
     private SceneGameBoard _SceneGameBoard;
 
     [SerializeField]
-    private GameBoardManager _GameBoardManager;
+    private PlayerGameBoardManager _GameBoardManager;
 
     void Start()
     {
         SubscribeGameBoard(_GameBoardManager.GameBoard);
 
-        _GameBoardManager.StartGame();
+        //_GameBoardManager.StartGame();
     }
 
     private void SubscribeGameBoard(IGameBoardObservable gameBoard)

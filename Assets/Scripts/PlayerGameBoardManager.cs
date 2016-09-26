@@ -4,7 +4,7 @@ using ThreeSeven.Model;
 using UniRx;
 using System;
 
-public class GameBoardManager : MonoBehaviour
+public class PlayerGameBoardManager : MonoBehaviour
 {
     private GameBoard _gameboard;
 
@@ -28,6 +28,8 @@ public class GameBoardManager : MonoBehaviour
 
     private IEnumerator SequenceStartGame()
     {
+        SubscribeGameBoard(_gameboard);
+
         _gameboard.StartGame();
 
         yield break;
@@ -36,7 +38,10 @@ public class GameBoardManager : MonoBehaviour
     private void InitializeGameBoard ()
     {
         _gameboard = new GameBoard(GlobalSettings.GameBoardSize);
-        
+    }
+
+    private void SubscribeGameBoard(GameBoard gameBoard)
+    {
         _gameboard.StateObservable
                   .Where(x => x != GameBoardState.OnControlTetromino
                            && x != GameBoardState.BeforeDeleteBlocks)
