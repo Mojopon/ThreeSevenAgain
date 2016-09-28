@@ -5,7 +5,7 @@ using UniRx;
 using System.Linq;
 using System;
 
-public class PlayerGameBoardPresenter : MonoBehaviour
+public class GameBoardPresenter : MonoBehaviour
 {
     [SerializeField]
     private SceneGameBoard _SceneGameBoard;
@@ -15,12 +15,13 @@ public class PlayerGameBoardPresenter : MonoBehaviour
 
     void Start()
     {
-        SubscribeGameBoard(_GameBoardManager.GameBoard);
-
-        //_GameBoardManager.StartGame();
+        IGameBoardManager gameBoardManager = _GameBoardManager as IGameBoardManager;
+        gameBoardManager.GameBoardObservable.Where(x => x != null)
+                                            .Subscribe(x => SubscribeGameBoard(x))
+                                            .AddTo(gameObject);
     }
 
-    private void SubscribeGameBoard(IGameBoardObservable gameBoard)
+    public void SubscribeGameBoard(IGameBoardObservable gameBoard)
     {
         _SceneGameBoard.SetSize(GlobalSettings.GameBoardSize);
 

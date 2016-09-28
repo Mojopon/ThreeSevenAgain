@@ -4,8 +4,18 @@ using ThreeSeven.Model;
 using UniRx;
 using System;
 
-public class PlayerGameBoardManager : MonoBehaviour
+public interface IGameBoardManager
 {
+    IObservable<IGameBoardObservable> GameBoardObservable { get; }
+}
+
+public class PlayerGameBoardManager : MonoBehaviour, IGameBoardManager
+{
+    public IObservable<IGameBoardObservable> GameBoardObservable
+    { get { return _gameBoardStream.AsObservable(); } }
+
+    private ISubject<IGameBoardObservable> _gameBoardStream = new BehaviorSubject<IGameBoardObservable>(null);
+
     private GameBoard _gameboard;
 
     public GameBoard GameBoard
@@ -28,9 +38,11 @@ public class PlayerGameBoardManager : MonoBehaviour
 
     private IEnumerator SequenceStartGame()
     {
-        SubscribeGameBoard(_gameboard);
+        SubscribeGameBoard(GameBoard);
 
         _gameboard.StartGame();
+
+        _gameBoardStream.OnNext(GameBoard);
 
         yield break;
     }

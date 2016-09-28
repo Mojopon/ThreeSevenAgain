@@ -2,7 +2,7 @@
 using System.Collections;
 using Photon;
 
-public class NetworkManager : Photon.MonoBehaviour {
+public class PhotonNetworkManager : Photon.MonoBehaviour {
 
     public bool AutoConnect = true;
 
