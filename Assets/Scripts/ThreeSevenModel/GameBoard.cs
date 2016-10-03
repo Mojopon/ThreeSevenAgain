@@ -22,7 +22,7 @@ public class GameBoard : CellBoard, IGameBoardObservable
     public IObservable<GameBoardState> StateObservable { get { return _stateReactiveProperty.AsObservable(); } }
     private ReactiveProperty<GameBoardState> _stateReactiveProperty = new ReactiveProperty<GameBoardState>(GameBoardState.Default);
 
-    public  IObservable<GameBoardEvents> GameBoardObservable { get { return _gameBoardStream.AsObservable(); } }
+    public  IObservable<GameBoardEvents> GameBoardEventsObservable { get { return _gameBoardStream.AsObservable(); } }
     private ISubject<GameBoardEvents> _gameBoardStream = new BehaviorSubject<GameBoardEvents>(null);
 
     private Func<Tetromino> _createTetromino = new TetrominoFactory().Create;
@@ -61,6 +61,8 @@ public class GameBoard : CellBoard, IGameBoardObservable
         _nextTetrominos = null;
 
         PrepareNextTetromino();
+
+        UpdateGameBoard();
     }
 
     public void GoNextState()
@@ -91,9 +93,15 @@ public class GameBoard : CellBoard, IGameBoardObservable
         NextTetromino.Position = new Point<int> { X = Center.X - NextTetromino.Size.Width / 2, Y = 0 };
         _currentTetromino = NextTetromino;
         _nextTetrominos.Remove(NextTetromino);
-        _newTetrominoAdded = true;
 
         PrepareNextTetromino();
+
+        _currentTetrominoEvent = new CurrentTetrominoEvent()
+        {
+            CurrentTetromino = _currentTetromino,
+            NewTetrominoAdded = true,
+        };
+
         UpdateGameBoard();
 
         _stateReactiveProperty.Value = GameBoardState.OnControlTetromino;
@@ -119,13 +127,14 @@ public class GameBoard : CellBoard, IGameBoardObservable
             }
         }
 
-        UpdateGameBoard();
+        //UpdateGameBoard();
     }
 
-    private GameBoardEvents             _gameboardEvents  = null;
-    private PlacedBlockEvent            _placedBlockEvent = null;
-    private TwoDimensionalMovement[]    _blockMovements   = null;
-    private DeletedBlockEvent           _deletedBlockEvent = null;
+    private GameBoardEvents             _gameboardEvents         = null;
+    private PlacedBlockEvent            _placedBlockEvent        = null;
+    private CurrentTetrominoEvent       _currentTetrominoEvent   = null;
+    private TwoDimensionalMovement[]    _blockMovements          = null;
+    private DeletedBlockEvent           _deletedBlockEvent       = null;
     // UpdateGameBoard will notify that the board is updated to all its subscribers
     private void UpdateGameBoard()
     {
@@ -144,12 +153,28 @@ public class GameBoard : CellBoard, IGameBoardObservable
             _deletedBlockEvent = null;
         }
 
+        if(_currentTetrominoEvent != null)
+        {
+            _gameboardEvents.TetrominoEvent = _currentTetrominoEvent;
+            _currentTetrominoEvent = null;
+        }
+        else
+        {
+            _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
+            {
+                CurrentTetromino = _currentTetromino
+            };
+        }
+
+        /*
         _gameboardEvents.TetrominoEvent = new CurrentTetrominoEvent()
         { CurrentTetromino  = this._currentTetromino,
           NewTetrominoAdded = this._newTetrominoAdded,
           TetrominoIsPlaced = this._tetrominoIsPlaced};
         _newTetrominoAdded = false;
         _tetrominoIsPlaced = false;
+
+        */
 
         _gameboardEvents.BlockMoveEvent = new BlockMoveEvent()
         { movements = _blockMovements };
@@ -166,21 +191,24 @@ public class GameBoard : CellBoard, IGameBoardObservable
     {
         if (_currentTetromino == null) return false;
 
-        return MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X - 1, Y = _currentTetromino.Position.Y });
+        return MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X - 1, Y = _currentTetromino.Position.Y },
+               Direction.Left);
     }
 
     public bool MoveRight()
     {
         if (_currentTetromino == null) return false;
 
-        return MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X + 1, Y = _currentTetromino.Position.Y });
+        return MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X + 1, Y = _currentTetromino.Position.Y },
+               Direction.Right);
     }
 
     public bool MoveDown()
     {
         if (_currentTetromino == null) return false;
 
-        bool moveSucceed = MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X, Y = _currentTetromino.Position.Y + 1 });
+        bool moveSucceed = MoveCurrentTetrominoTo(new Point<int> { X = _currentTetromino.Position.X, Y = _currentTetromino.Position.Y + 1 },
+                           Direction.Down);
 
         if (!moveSucceed)
         {
@@ -255,11 +283,17 @@ public class GameBoard : CellBoard, IGameBoardObservable
         UpdateGameBoard();
     }
 
-    private bool MoveCurrentTetrominoTo(Point<int> newPosition)
+    private bool MoveCurrentTetrominoTo(Point<int> newPosition, Direction direction)
     {
         if (CanMoveCurrentTetrominoTo(newPosition))
         {
             _currentTetromino.Position = newPosition;
+
+            _currentTetrominoEvent = new CurrentTetrominoEvent()
+            {
+                CurrentTetromino = _currentTetromino,
+                TetrominoMoveDirection = direction
+            };
             UpdateGameBoard();
             return true;
         }
@@ -357,7 +391,12 @@ public class GameBoard : CellBoard, IGameBoardObservable
 
         _placedBlockEvent = new PlacedBlockEvent() { placedBlocks = placedBlocks.ToArray() };
         _currentTetromino = null;
-        _tetrominoIsPlaced = true;
+
+        _currentTetrominoEvent = new CurrentTetrominoEvent()
+        {
+            TetrominoIsPlaced = true,
+        };
+
         return true;
     }
 

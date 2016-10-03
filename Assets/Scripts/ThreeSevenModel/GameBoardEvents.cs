@@ -20,8 +20,7 @@ public class CurrentTetrominoEvent
     public bool TetrominoIsPlaced { get; set; }
 
     public Tetromino CurrentTetromino = null;
-    public Point<int>[] CurrentTetrominoPositions { get { return CurrentTetromino.Positions; } }
-    public IBlock[] CurrentTetrominoBlocks { get { return CurrentTetromino.Blocks; } }
+    public Direction TetrominoMoveDirection = Direction.None;
 }
 public struct PlacedBlock
 {
@@ -41,14 +40,14 @@ public class BlockMoveEvent
     public TwoDimensionalMovement[] movements = null;
 }
 
-public class DeletedBlockEvent
-{
-    public DeletedBlock[] deletedBlocks;
-}
-
 public class DeletedBlock
 {
     public int number;
     public ThreeSevenBlock type;
     public Point<int> point;
+}
+
+public class DeletedBlockEvent
+{
+    public DeletedBlock[] deletedBlocks;
 }

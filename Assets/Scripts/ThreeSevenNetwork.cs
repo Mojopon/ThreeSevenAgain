@@ -8,7 +8,12 @@ public enum ThreeSevenNetworkInputType
     None = 0,
     Entry,
     AddTetromino,
-    MoveTetromino,
+    MoveTetrominoToPositions,
+    MoveTetrominoToDirection,
+    DestroyTetromino,
+    PlaceBlocks,
+    DropBlocks,
+    DeleteBlocks,
 }
 
 public struct ThreeSevenNetworkInputEvent
@@ -34,12 +39,10 @@ public class ThreeSevenNetwork : Photon.MonoBehaviour
         });
     }
 
-    public void SendGameBoardChange(int id, ThreeSevenNetworkInputType inputType,  object data)
+    public void SendGameBoardChange(int id, ThreeSevenNetworkInputType inputType,  byte[] data)
     {
         var byteInputType = (byte)inputType;
 
-        byte[] byteData = (byte[])data;
-
-        photonView.RPC("OnGameBoardChange", PhotonTargets.OthersBuffered, id, byteInputType, byteData);
+        photonView.RPC("OnGameBoardChange", PhotonTargets.OthersBuffered, id, byteInputType, data);
     }
 }

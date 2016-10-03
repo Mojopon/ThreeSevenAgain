@@ -25,7 +25,8 @@ public class GameBoardPresenter : MonoBehaviour
     {
         _SceneGameBoard.SetSize(GlobalSettings.GameBoardSize);
 
-        gameBoard.GameBoardObservable
+        // On New Tetromino Added
+        gameBoard.GameBoardEventsObservable
                   .Where(x => x != null)
                   .Select(x => x.TetrominoEvent)
                   .Where(x => x.NewTetrominoAdded)
@@ -36,7 +37,8 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        gameBoard.GameBoardObservable
+        // On Tetromino Moved
+        gameBoard.GameBoardEventsObservable
                   .Where(x => x != null && x.TetrominoEvent.HasEvent)
                   .Select(x => x.TetrominoEvent.CurrentTetromino)
                   .Subscribe(x =>
@@ -45,7 +47,8 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        gameBoard.GameBoardObservable
+        // On Tetromino Placed, Destroy Current Tetromino
+        gameBoard.GameBoardEventsObservable
                   .Where(x => x != null && x.TetrominoEvent.TetrominoIsPlaced)
                   .Subscribe(x =>
                   {
@@ -53,7 +56,8 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        gameBoard.GameBoardObservable
+        // On Tetromino Placed, Add New Blocks to the SceneGameBoard instead of the Destroyed Tetromino
+        gameBoard.GameBoardEventsObservable
                   .Where(x => x != null && x.PlacedBlockEvent != null)
                   .Select(x => x.PlacedBlockEvent.placedBlocks)
                   .Subscribe(x =>
@@ -63,7 +67,8 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        gameBoard.GameBoardObservable
+        // On Block Drop
+        gameBoard.GameBoardEventsObservable
                   .Where(x => x != null && x.BlockMoveEvent != null && x.BlockMoveEvent.movements != null)
                   .Select(x => x.BlockMoveEvent.movements)
                   .Subscribe(x =>
@@ -73,7 +78,8 @@ public class GameBoardPresenter : MonoBehaviour
                   })
                   .AddTo(gameObject);
 
-        gameBoard.GameBoardObservable
+        // On Block Delete
+        gameBoard.GameBoardEventsObservable
                   .Where(x => x != null && x.DeletedBlockEvent != null)
                   .Select(x => x.DeletedBlockEvent.deletedBlocks)
                   .Subscribe(x =>

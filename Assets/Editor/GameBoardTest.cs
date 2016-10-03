@@ -64,7 +64,7 @@ public class GameBoardTest
     public void It_Will_Notify_GameBoardEvents_When_Updated()
     {
         GameBoardEvents notifiedEvent = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Subscribe(x => notifiedEvent = x)
                  .AddTo(subscriptions);
         Assert.IsNull(notifiedEvent);
@@ -84,7 +84,7 @@ public class GameBoardTest
     public void Produce_Next_Tetromino()
     {
         GameBoardEvents notifiedEvent = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Subscribe(x => notifiedEvent = x)
                  .AddTo(subscriptions);
 
@@ -124,7 +124,7 @@ public class GameBoardTest
     public void Can_Move_Tetromino_In_The_Cells()
     {
         Tetromino currentTetromino = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.TetrominoEvent.HasEvent)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => currentTetromino = x)
@@ -183,10 +183,42 @@ public class GameBoardTest
     }
 
     [Test]
+    public void It_Gives_You_a_Direction_Move_From()
+    {
+        CurrentTetrominoEvent currentTetrominoEvent = null;
+        Tetromino             currentTetromino      = null;
+        gameBoard.GameBoardEventsObservable
+                 .Where(x => x != null)
+                 .Subscribe(x => 
+                 {
+                     currentTetrominoEvent = x.TetrominoEvent;
+                     currentTetromino = currentTetrominoEvent.CurrentTetromino;
+                 })
+                 .AddTo(subscriptions);
+
+        gameBoard.StartGame();
+        Assert.IsFalse(currentTetrominoEvent.HasEvent);
+
+        gameBoard.GoNextState();
+        Assert.IsTrue(currentTetrominoEvent.HasEvent);
+        Assert.IsTrue(currentTetrominoEvent.NewTetrominoAdded);
+        var firstTetrominoPos = currentTetromino.Position;
+
+        Assert.IsTrue(gameBoard.MoveLeft());
+        Assert.AreEqual(Direction.Left, currentTetrominoEvent.TetrominoMoveDirection);
+
+        Assert.IsTrue(gameBoard.MoveRight());
+        Assert.AreEqual(Direction.Right, currentTetrominoEvent.TetrominoMoveDirection);
+
+        Assert.IsTrue(gameBoard.MoveDown());
+        Assert.AreEqual(Direction.Down, currentTetrominoEvent.TetrominoMoveDirection);
+    }
+
+    [Test]
     public void Cant_Move_Tetromino_On_Other_Block()
     {
         Tetromino currentTetromino = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.TetrominoEvent.HasEvent)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => currentTetromino = x)
@@ -258,7 +290,7 @@ public class GameBoardTest
     public void Can_Rotate_Tetromino_In_The_Cells()
     {
         Tetromino currentTetromino = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.TetrominoEvent.HasEvent)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => currentTetromino = x)
@@ -302,7 +334,7 @@ public class GameBoardTest
     public void Place_Tetromino_When_Dropped_on_Other_Block()
     {
         Tetromino tetromino = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.TetrominoEvent.HasEvent)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => tetromino = x)
@@ -334,13 +366,13 @@ public class GameBoardTest
         Assert.AreEqual(firstTetrominoPos.Add(0, 10), tetromino.Position);
 
         bool tetrominoCleared = false;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && !x.TetrominoEvent.HasEvent)
                  .Subscribe(x => tetrominoCleared = true)
                  .AddTo(subscriptions);
 
         PlacedBlockEvent placedBlockEvent = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.PlacedBlockEvent != null)
                  .Select(x => x.PlacedBlockEvent)
                  .Subscribe(x => placedBlockEvent = x);
@@ -372,7 +404,7 @@ public class GameBoardTest
     public void Drop_All_Blocks_Above_Ground()
     {
         BlockMoveEvent blockMoveEvent = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.BlockMoveEvent.HasEvent)
                  .Select(x => x.BlockMoveEvent)
                  .Subscribe(x => blockMoveEvent = x)
@@ -473,7 +505,7 @@ public class GameBoardTest
     {
         GameBoardState state = GameBoardState.Default;
         DeletedBlockEvent deletedBlockEvent = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.DeletedBlockEvent != null)
                  .Select(x => x.DeletedBlockEvent)
                  .Subscribe(x => deletedBlockEvent = x)
@@ -524,7 +556,7 @@ public class GameBoardTest
     public void StateTest()
     {
         Tetromino tetromino = null;
-        gameBoard.GameBoardObservable
+        gameBoard.GameBoardEventsObservable
                  .Where(x => x != null && x.TetrominoEvent.HasEvent)
                  .Select(x => x.TetrominoEvent.CurrentTetromino)
                  .Subscribe(x => tetromino = x)
