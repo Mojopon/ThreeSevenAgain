@@ -64,6 +64,19 @@ public class SceneGameBoard : MonoBehaviour, ISceneGameBoard
         _currentTetromino.positions = points;
     }
 
+    public void MoveTetromino(Direction direction)
+    {
+        var currentPositions = _currentTetromino.positions;
+        currentPositions.ForEach((position) => position.Add(direction.ToPoint()));
+
+        _currentTetromino.sceneBlocks.ForEach((count, block) =>
+        {
+            PlaceBlockToPoint(currentPositions[count], block);
+        });
+
+        _currentTetromino.positions = currentPositions;
+    }
+
     public void DestroyTetromino()
     {
         _currentTetromino.sceneBlocks.ForEach((count, block) =>

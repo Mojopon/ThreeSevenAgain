@@ -8,31 +8,6 @@ namespace ThreeSeven.Helper
 {
     public static class ResolveHelper
     {
-        internal static Point<int> ToPoint(this Direction direction)
-        {
-            switch(direction)
-            {
-                case Direction.Up:
-                    return new Point<int>() { X = 0 , Y = -1 };
-                case Direction.Down:
-                    return new Point<int>() { X = 0 , Y = 1 };
-                case Direction.Left:
-                    return new Point<int>() { X = -1, Y = 0 };
-                case Direction.Right:
-                    return new Point<int>() { X = 1 , Y = 0 };
-            }
-
-            return new Point<int>();
-        } 
-
-        internal enum Direction
-        {
-            Up,
-            Down,
-            Left,
-            Right,
-        }
-
         public static Point<int>[] ResolveThreeSevenGrid(this int[,] @this)
         {
             var pointsToResolve = new HashSet<Point<int>>();

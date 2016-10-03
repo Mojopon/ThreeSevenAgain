@@ -7,6 +7,7 @@ public interface ISceneGameBoard
     void SetSize(Size<int> size);
     void AddTetromino(ThreeSevenBlock[] blocks);
     void MoveTetromino(Point<int>[] points);
+    void MoveTetromino(Direction direction);
     void DestroyTetromino();
     void PlaceBlock(Point<int> point, ThreeSevenBlock type);
     void MoveBlock(Point<int> source, Point<int> destination);
