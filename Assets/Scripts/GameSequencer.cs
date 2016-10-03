@@ -5,7 +5,7 @@ using UniRx;
 public class GameSequencer : Photon.MonoBehaviour
 {
     [SerializeField]
-    private ThreeSevenNetworkInputMessenger _ThreeSevenNetworkInputMessenger;
+    private ThreeSevenNetwork _ThreeSevenNetwork;
 
     [SerializeField]
     private PlayerGameBoardManager _PlayerGameBoardManager;
@@ -14,19 +14,30 @@ public class GameSequencer : Photon.MonoBehaviour
 
     void Start()
     {
-        _ThreeSevenNetworkInputMessenger.EventObservable
-                                        .Subscribe(x => OnOtherPlayerJoins(x))
-                                        .AddTo(gameObject);
+        _ThreeSevenNetwork.EventObservable
+                          .Where(x => x.type == ThreeSevenNetworkInputType.Entry)
+                          .Subscribe(x => OnInputReceived(x))
+                          .AddTo(gameObject);
     }
 
     public void OnJoinedRoom()
     {
-        _PlayerGameBoardManager.StartGame();
+        _ThreeSevenNetwork.SendGameBoardChange(PhotonNetwork.player.ID, ThreeSevenNetworkInputType.Entry, new byte[] { 1, 2 });
 
-        _ThreeSevenNetworkInputMessenger.SendGameBoardChange(ThreeSevenNetworkInputType.AddTetromino,new byte[] { 1, 2 });
+        _PlayerGameBoardManager.StartGame();
     }
 
-    public void OnOtherPlayerJoins(ThreeSevenNetworkInputEvent nEvent)
+    private void OnInputReceived(ThreeSevenNetworkInputEvent nEvent)
+    {
+        switch(nEvent.type)
+        {
+            case ThreeSevenNetworkInputType.Entry:
+                OnPlayerEntry(nEvent);
+                break;
+        }
+    }
+
+    private void OnPlayerEntry(ThreeSevenNetworkInputEvent nEvent)
     {
         _EnemyGameBoardManager.SetActive(true);
     }
