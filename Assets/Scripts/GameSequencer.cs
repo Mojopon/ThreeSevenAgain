@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UniRx;
+using System.Linq;
+using ThreeSeven.Model;
+using System.Collections.Generic;
 
 public class GameSequencer : Photon.MonoBehaviour
 {
@@ -10,13 +13,13 @@ public class GameSequencer : Photon.MonoBehaviour
     [SerializeField]
     private PlayerGameBoardManager _PlayerGameBoardManager;
     [SerializeField]
-    private GameObject _EnemyGameBoardManager;
+    private SceneGameBoard _EnemyGameBoard;
 
     void Start()
     {
         _PlayerGameBoardManager.GameBoardObservable
                                .Where(x => x != null)
-                               .Subscribe(x => SubscribeOnGameBoard(x))
+                               .Subscribe(x => SubscribeGameBoard(x))
                                .AddTo(gameObject);
 
         _ThreeSevenNetwork.EventObservable
@@ -24,8 +27,8 @@ public class GameSequencer : Photon.MonoBehaviour
                           .AddTo(gameObject);
     }
 
-
-    private void SubscribeOnGameBoard(IGameBoardObservable gameBoard)
+    // Subscribe GameBoard to send its parameter changes to ThreeSevenNetwork
+    private void SubscribeGameBoard(IGameBoardObservable gameBoard)
     {
         // On New Tetromino Added
         gameBoard.GameBoardEventsObservable
@@ -38,22 +41,22 @@ public class GameSequencer : Photon.MonoBehaviour
                       _ThreeSevenNetwork.SendGameBoardChange
                       (PhotonNetwork.player.ID,                                     
                        ThreeSevenNetworkInputType.AddTetromino,
-                       new byte[] { 1, 2 });
-
-                      //_SceneGameBoard.AddTetromino(x.Select(block => block.Type).ToArray());
+                       x.Select(b => (byte)b.Type).ToArray());
                   })
                   .AddTo(gameObject);
 
         // On Tetromino Moved
         gameBoard.GameBoardEventsObservable
                   .Where(x => x != null && x.TetrominoEvent.HasEvent)
-                  .Select(x => x.TetrominoEvent.CurrentTetromino)
-                  .Subscribe(x =>
+                  .Select(x => x.TetrominoEvent.CurrentTetromino.Positions)
+                  .Subscribe(points =>
                   {
+
                       _ThreeSevenNetwork.SendGameBoardChange
                       (PhotonNetwork.player.ID,
-                       ThreeSevenNetworkInputType.MoveTetrominoToDirection,
-                       new byte[] { 1, 2 });
+                       ThreeSevenNetworkInputType.MoveTetrominoToPositions,
+                       points.SelectMany(p => new byte[] {(byte)p.X , (byte)p.Y }).ToArray());
+                       
                       //_SceneGameBoard.MoveTetromino(x.Positions);
                   })
                   .AddTo(gameObject);
@@ -133,11 +136,38 @@ public class GameSequencer : Photon.MonoBehaviour
             case ThreeSevenNetworkInputType.Entry:
                 OnPlayerEntryReceived(nEvent);
                 break;
+            case ThreeSevenNetworkInputType.AddTetromino:
+                OnAddTetrominoReceived(nEvent);
+                break;
+            case ThreeSevenNetworkInputType.MoveTetrominoToPositions:
+                OnMoveTetrominoToPositionsReceived(nEvent);
+                break;
         }
     }
 
     private void OnPlayerEntryReceived(ThreeSevenNetworkInputEvent nEvent)
     {
-        _EnemyGameBoardManager.SetActive(true);
+        _EnemyGameBoard.gameObject.SetActive(true);
+    }
+
+    private void OnAddTetrominoReceived(ThreeSevenNetworkInputEvent nEvent)
+    {
+        ThreeSevenBlock[] blocks = nEvent.data.Select(b => (ThreeSevenBlock)b).ToArray();
+        _EnemyGameBoard.AddTetromino(blocks);
+    }
+
+    private void OnMoveTetrominoToPositionsReceived(ThreeSevenNetworkInputEvent nEvent)
+    {
+        List<Point<int>> allPoints = new List<Point<int>>();
+        List<int> points = new List<int>();
+
+        foreach (var xs in nEvent.data.Buffer(2))
+        {
+            points.Clear();
+            xs.ForEach(x => points.Add(x));
+            allPoints.Add(Point<int>.At(points[0], points[1]));
+        }
+
+        _EnemyGameBoard.MoveTetromino(allPoints.ToArray());
     }
 }
