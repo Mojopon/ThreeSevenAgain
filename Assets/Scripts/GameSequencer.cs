@@ -142,6 +142,13 @@ public class GameSequencer : Photon.MonoBehaviour
             case ThreeSevenNetworkInputType.MoveTetrominoToPositions:
                 OnMoveTetrominoToPositionsReceived(nEvent);
                 break;
+            case ThreeSevenNetworkInputType.DestroyTetromino:
+                OnDestroyTetrominoReceived(nEvent);
+                break;
+            case ThreeSevenNetworkInputType.PlaceBlocks:
+                break;
+            case ThreeSevenNetworkInputType.DeleteBlocks:
+                break;
         }
     }
 
@@ -169,5 +176,9 @@ public class GameSequencer : Photon.MonoBehaviour
         }
 
         _EnemyGameBoard.MoveTetromino(allPoints.ToArray());
+    }
+    private void OnDestroyTetrominoReceived(ThreeSevenNetworkInputEvent nEvent)
+    {
+        _EnemyGameBoard.DestroyTetromino();
     }
 }
