@@ -66,10 +66,10 @@ public class GameSequencer : Photon.MonoBehaviour
                   .Where(x => x != null && x.TetrominoEvent.TetrominoIsPlaced)
                   .Subscribe(x =>
                   {
-                      _ThreeSevenNetwork.SendGameBoardChange
-                      (PhotonNetwork.player.ID,
-                       ThreeSevenNetworkInputType.DestroyTetromino,
-                       new byte[] { 1, 2 });
+                  _ThreeSevenNetwork.SendGameBoardChange
+                  (PhotonNetwork.player.ID,
+                   ThreeSevenNetworkInputType.DestroyTetromino,
+                   new byte[0]);
                       //_SceneGameBoard.DestroyTetromino();
                   })
                   .AddTo(gameObject);
@@ -145,10 +145,14 @@ public class GameSequencer : Photon.MonoBehaviour
             case ThreeSevenNetworkInputType.DestroyTetromino:
                 OnDestroyTetrominoReceived(nEvent);
                 break;
+<<<<<<< HEAD
             case ThreeSevenNetworkInputType.PlaceBlocks:
                 break;
             case ThreeSevenNetworkInputType.DeleteBlocks:
                 break;
+=======
+
+>>>>>>> origin/create-threeseven-model
         }
     }
 
@@ -177,6 +181,10 @@ public class GameSequencer : Photon.MonoBehaviour
 
         _EnemyGameBoard.MoveTetromino(allPoints.ToArray());
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/create-threeseven-model
     private void OnDestroyTetrominoReceived(ThreeSevenNetworkInputEvent nEvent)
     {
         _EnemyGameBoard.DestroyTetromino();
